@@ -10,10 +10,10 @@
 export default {
   methods: {
     goToHome() {
-      this.$router.push({ path: '/' }); 
+      this.$router.push({ path: '/tasks' }); 
     },
     goToMyTasks() {
-      this.$router.push({ path: '/tasks' }); 
+      this.$router.push({ path: '/mytasks' }); 
     },
   },
 };
