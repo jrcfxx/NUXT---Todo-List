@@ -1,8 +1,8 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <!-- navigation bar -->
-    <v-app-bar app :style="{ backgroundColor: '#8B0000' }" dark>
+    <v-app-bar app color="primary" dark>
+      <v-icon class="mr-2">mdi-check</v-icon>
       <v-toolbar-title>Todo List</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text @click="goToHome">Home</v-btn>
@@ -13,13 +13,12 @@
       <v-container id="home" class="mt-12">
         <v-row>
           <v-col cols="12" md="8">
-            <div class="form-header">
-              <h2>What's new for today?</h2>
-              <p>Fill out the fields to create the tasks.</p>
+            <div>
+              <h2 class="text-h4 mb-3 text-primary">What's new for today?</h2>
+              <p class="text-subtitle-1 mb-4 text-secondary">Fill out the fields to create the tasks.</p>
             </div>
 
             <v-form @submit.prevent>
-              <!-- Text field for task title -->
               <v-text-field
                 label="Title"
                 placeholder="The title of the task"
@@ -33,7 +32,7 @@
               ></v-textarea>
 
               <v-radio-group row>
-                <label class="priority-label">Priority</label>
+                <label class="text-body-1 mb-2 font-weight-bold text-primary">Priority</label>
                 <v-radio label="1" :value="1"></v-radio>
                 <v-radio label="2" :value="2"></v-radio>
                 <v-radio label="3" :value="3"></v-radio>
@@ -59,13 +58,12 @@
                 type="date"
               ></v-text-field>
 
-              <v-btn :style="{ backgroundColor: '#8B0000' }" dark type="submit" block>Submit</v-btn>
+              <v-btn color="primary" dark type="submit" block>Submit</v-btn>
             </v-form>
           </v-col>
 
           <v-col cols="12" md="4">
-            <!-- Illustration image -->
-            <img src="C:\Users\fiorinij\Documents\projects\NUXT---Todo-List\assets\Icon_img.png" />
+            <v-img src="@/assets/Icon_img.png" max-width="100%"></v-img>
           </v-col>
         </v-row>
       </v-container>
@@ -85,37 +83,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.form-header {
-  margin-bottom: 20px;
-}
-
-.form-header h2 {
-  font-size: 2rem;
-  color: #8B0000; 
-  margin-bottom: 10px;
-}
-
-.form-header p {
-  font-size: 1rem;
-  color: #6c757d;
-  margin-bottom: 20px;
-}
-
-.priority-label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #8B0000;
-}
-
-.illustration {
-  max-width: 100%;
-}
-
-.v-btn {
-  margin-top: 20px;
-  color: white;
-}
-</style>

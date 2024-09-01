@@ -1,7 +1,8 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <v-app-bar app :style="{ backgroundColor: '#8B0000' }" dark>
+    <v-app-bar app color="primary" dark>
+      <v-icon class="mr-2">mdi-check</v-icon>
       <v-toolbar-title>Todo List</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn text @click="goToHome">Home</v-btn>
@@ -12,26 +13,26 @@
       <v-container id="tasks" class="mt-12">
         <v-row>
           <v-col cols="12">
-            <div class="tasks-header">
-              <h2>My tasks</h2>
-              <p>Your tasks created</p>
+            <div>
+              <h2 class="text-h4 mb-3 text-primary">My tasks</h2>
+              <p class="text-subtitle-1 mb-4 text-secondary">Your tasks created</p>
             </div>
 
             <v-simple-table>
               <thead>
                 <tr>
-                  <th class="text-left" style="width: 8%;">Task</th>
-                  <th class="text-left" style="width: 12%;">Title</th>
-                  <th class="text-left" style="width: 25%;">Description</th>
-                  <th class="text-left" style="width: 10%;">Priority</th>
-                  <th class="text-left" style="width: 15%;">Status</th>
-                  <th class="text-left" style="width: 15%;">Due Date</th>
-                  <th class="text-left" style="width: 15%;">Completeness Date</th>
-                  <th class="text-left" style="width: 10%;">Action</th>
+                  <th class="text-left" width="8%">Task</th>
+                  <th class="text-left" width="12%">Title</th>
+                  <th class="text-left" width="25%">Description</th>
+                  <th class="text-left" width="10%">Priority</th>
+                  <th class="text-left" width="15%">Status</th>
+                  <th class="text-left" width="15%">Due Date</th>
+                  <th class="text-left" width="15%">Completeness Date</th>
+                  <th class="text-left" width="10%">Action</th>
                 </tr>
               </thead>
               <tbody>
-              <!-- For each item in tasks, a new <tr> (table row) element will be generated. -->
+              <!-- For each item in tasks, a new <tr> element will be generated -->
                 <tr v-for="task in tasks" :key="task.id">
                   <td>{{ task.id }}</td>
                   <td>{{ task.title }}</td>
@@ -85,33 +86,12 @@ export default {
 </script>
 
 <style scoped>
-.tasks-header {
-  margin-bottom: 20px;
-}
-
-.tasks-header h2 {
-  font-size: 2rem;
-  color: #8B0000;
-  margin-bottom: 10px;
-}
-
-.tasks-header p {
-  font-size: 1rem;
-  color: #6c757d;
-  margin-bottom: 20px;
-}
-
 .v-simple-table th, .v-simple-table td {
-  padding: 12px 15px;
+  padding: 12px;
   text-align: left;
 }
 
 .v-simple-table th {
   font-weight: bold;
-}
-
-.v-btn {
-  margin-top: 20px;
-  color: white;
 }
 </style>
