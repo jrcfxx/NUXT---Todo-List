@@ -74,7 +74,7 @@ export default {
       this.$router.push({ path: '/tasks' });
     },
     goToMyTasks() {
-      this.$router.push({ path: '/mytasks' });
+      this.$router.push({ path: '/myTasks' });
     },
     formatDate(dateString) {
       // format the date for display
