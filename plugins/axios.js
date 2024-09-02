@@ -3,14 +3,14 @@
 
 import axios from 'axios'
 
-export default defineNuxtPlugin(nuxtApp => {
+export default defineNuxtPlugin((nuxtApp) => {
   // Creates an instance of Axios with the baseURL of the Laravel API
   const api = axios.create({
     baseURL: 'http://127.0.0.1:8000/api',
   })
 
   // Intercepting every Axios request before it is sent
-  api.interceptors.request.use(config => {
+  api.interceptors.request.use((config) => {
 // Retrieve the authentication token from the local storage
     const token = localStorage.getItem('authToken')
 
