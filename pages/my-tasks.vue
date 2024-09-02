@@ -1,13 +1,7 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-icon class="mr-2">mdi-check</v-icon>
-      <v-toolbar-title>Todo List</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text @click="goToHome">Home</v-btn>
-      <v-btn text @click="goToMyTasks">My Tasks</v-btn>
-    </v-app-bar>
+    <NavBar />
 
     <v-main>
       <v-container id="tasks" class="mt-12">
@@ -18,7 +12,7 @@
               <p class="text-subtitle-1 mb-4 text-secondary">Your tasks created</p>
             </div>
 
-            <v-simple-table>
+            <v-table>
               <thead>
                 <tr>
                   <th class="text-left" width="8%">Task</th>
@@ -41,17 +35,17 @@
                   <td>{{ task.status }}</td>
                   <td>{{ formatDate(task.due_date) }}</td>
                   <td>{{ formatDate(task.completeness_date) }}</td>
-                  <td>
-                    <v-btn icon>
+                  <td class="d-flex">
+                    <v-btn class="mx-1" icon>
                       <v-icon color="green">mdi-pencil</v-icon>
                     </v-btn>
-                    <v-btn icon>
+                    <v-btn class="mx-1" icon>
                       <v-icon color="red">mdi-delete</v-icon>
                     </v-btn>
                   </td>
                 </tr>
               </tbody>
-            </v-simple-table>
+            </v-table>
           </v-col>
         </v-row>
       </v-container>
@@ -84,14 +78,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.v-simple-table th, .v-simple-table td {
-  padding: 12px;
-  text-align: left;
-}
-
-.v-simple-table th {
-  font-weight: bold;
-}
-</style>

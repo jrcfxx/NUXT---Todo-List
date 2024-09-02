@@ -1,13 +1,7 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-icon class="mr-2">mdi-check</v-icon>
-      <v-toolbar-title>Todo List</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text @click="goToHome">Home</v-btn>
-      <v-btn text @click="goToMyTasks">My Tasks</v-btn>
-    </v-app-bar>
+    <NavBar />
 
     <v-main>
       <v-container id="home" class="mt-12">
