@@ -64,12 +64,6 @@ export default {
     };
   },
   methods: {
-    goToHome() {
-      this.$router.push({ path: '/tasks' });
-    },
-    goToMyTasks() {
-      this.$router.push({ path: '/myTasks' });
-    },
     formatDate(dateString) {
       // format the date for display
       const options = { year: 'numeric', month: 'short', day: 'numeric' };

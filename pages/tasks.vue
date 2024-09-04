@@ -68,12 +68,7 @@
 <script>
 export default {
   methods: {
-    goToHome() {
-      this.$router.push({ path: '/tasks' });
-    },
-    goToMyTasks() {
-      this.$router.push({ path: '/myTasks' });
-    },
+
   },
 };
 </script>

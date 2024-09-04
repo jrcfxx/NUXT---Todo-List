@@ -4,9 +4,10 @@
 import axios from 'axios'
 
 export default defineNuxtPlugin((nuxtApp) => {
+  const config = useRuntimeConfig();
   // Creates an instance of Axios with the baseURL of the Laravel API
   const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api',
+    baseURL: config.public.apiBase
   })
 
   // Intercepting every Axios request before it is sent
