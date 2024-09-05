@@ -36,10 +36,10 @@
                   <td>{{ formatDate(task.due_date) }}</td>
                   <td>{{ formatDate(task.completeness_date) }}</td>
                   <td class="d-flex">
-                    <v-btn class="mx-1" icon>
+                    <v-btn class="mx-1" icon @click="editTask(task)">
                       <v-icon color="green">mdi-pencil</v-icon>
                     </v-btn>
-                    <v-btn class="mx-1" icon>
+                    <v-btn class="mx-1" icon @click="deleteTask(task.id)">
                       <v-icon color="red">mdi-delete</v-icon>
                     </v-btn>
                   </td>
@@ -57,18 +57,51 @@
 export default {
   data() {
     return {
-      tasks: [
-        { id: 'TSK-123', title: 'Task 1', description: 'Description of Task 1', priority: 13, status: 'Open', due_date: '2024-12-05T12:00:00', completeness_date: '2024-12-05T12:00:00' },
-        { id: 'TSK-124', title: 'Task 2', description: 'Description of Task 2', priority: 8, status: 'In Progress', due_date: '2024-12-06T12:00:00', completeness_date: '2024-12-06T12:00:00' },
-      ],
+      tasks: [],
     };
   },
   methods: {
     formatDate(dateString) {
-      // format the date for display
+      if (!dateString) {
+        return '-'; // In case the date is null
+      }
       const options = { year: 'numeric', month: 'short', day: 'numeric' };
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
+
+    // Search for the tasks of the logged user
+    async fetchTasks() {
+      try {
+        const response = await this.$api.get('/tasks');
+        this.tasks = response.data;
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error.response ? error.response.data : error);
+      }
+    },
+
+    // Delete a task
+    async deleteTask(taskId) {
+      if (confirm('Are you sure you want to delete this task?')) {
+        try {
+          await this.$api.delete(`/tasks/${taskId}`);
+          this.tasks = this.tasks.filter(task => task.id !== taskId);
+          alert('Task deleted successfully');
+        } catch (error) {
+          console.error('Failed to delete task:', error.response ? error.response.data : error);
+          alert('Failed to delete task');
+        }
+      }
+    },
+
+    editTask(task) {
+      // Redirects the user to the tasks details
+      this.$router.push({ path: `/task-details/${task.id}`, query: { task: JSON.stringify(task) } });
+    }
+  },
+  // load the user tasks at the time the page is displayed
+  mounted() {
+    // fetch the user tasks and load those tasks to be displayed in the component
+    this.fetchTasks();
   },
 };
 </script>
