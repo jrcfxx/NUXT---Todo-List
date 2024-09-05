@@ -17,6 +17,7 @@
                 v-model="title"
                 label="Title"
                 placeholder="The title of the task"
+                :error-messages="errors.title"
                 required
               ></v-text-field>
 
@@ -24,6 +25,7 @@
                 v-model="description"
                 label="Description"
                 placeholder="Enter the description of the task"
+                :error-messages="errors.description"
                 required
               ></v-textarea>
 
@@ -41,6 +43,7 @@
                 v-model="status"
                 :items="['Open', 'In Progress', 'Review', 'Hold', 'Closed']"
                 label="Status"
+                :error-messages="errors.status"
                 required
               ></v-select>
 
@@ -48,6 +51,7 @@
                 v-model="due_date"
                 label="Due Date"
                 type="date"
+                :error-messages="errors.due_date"
                 required
               ></v-text-field>
 
@@ -55,6 +59,7 @@
                 v-model="completeness_date"
                 label="Completeness Date"
                 type="date"
+                :error-messages="errors.completeness_date"
               ></v-text-field>
 
               <v-btn color="primary" dark type="submit" block>Submit</v-btn>
@@ -79,11 +84,26 @@ export default {
       priority: 1,
       status: 'Open',
       due_date: '',
-      completeness_date: ''
+      completeness_date: '',
+      errors: {} // Store error messages
     };
   },
   methods: {
+    validateDates() {
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
+      if (this.completeness_date && this.completeness_date > today) {
+        this.errors.completeness_date = ['The completeness date cannot be in the future.'];
+        return false; // Validation failed
+      }
+      this.errors = {}; // Clear errors if everything is valid
+      return true; // Validation successful
+    },
     async createTask() {
+      if (!this.validateDates()) {
+        // Stop submission if validation fails
+        return;
+      }
+
       try {
         const taskData = {
           title: this.title,
@@ -100,10 +120,14 @@ export default {
         const response = await this.$api.post('/tasks', taskData);
 
         this.$router.push({ path: `/my-tasks` });
-
       } catch (error) {
-        console.error('Task creation failed:', error.response ? error.response.data : error);
-        alert('Task creation failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
+        // Handle server-side errors
+        if (error.response && error.response.data && error.response.data.errors) {
+          this.errors = error.response.data.errors;
+        } else {
+          console.error('Task creation failed:', error);
+          alert('Task creation failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
+        }
       }
     },
   },

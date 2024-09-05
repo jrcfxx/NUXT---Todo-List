@@ -122,8 +122,12 @@ export default {
         alert('Task updated successfully');
         this.$router.push({ path: '/my-tasks' });
       } catch (error) {
-        this.handleErrors(error.response ? error.response.data.errors : {});
-        alert(`Failed to update task: ${error.response ? error.response.data.message : 'Unknown error'}`);
+        if (error.response && error.response.data && error.response.data.messages) {
+          const errorMessages = error.response.data.messages;
+          this.handleErrors(errorMessages);
+        } else {
+          alert('Failed to update task: Unknown error');
+        }
       }
     },
     // Capture and store validation errors from the server
