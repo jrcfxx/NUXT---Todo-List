@@ -1,10 +1,7 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-icon class="mr-2">mdi-check</v-icon>
-      <v-toolbar-title>Todo List</v-toolbar-title>
-    </v-app-bar>
+     <NavBar />
 
     <v-main>
       <v-container id="login" class="mt-12">
