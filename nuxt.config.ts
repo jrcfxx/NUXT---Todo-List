@@ -16,6 +16,7 @@ export default defineNuxtConfig({
         config.plugins.push(vuetify({ autoImport: true }))
       })
     },
+    "@pinia/nuxt"
   ],
 
   vite: {
@@ -34,4 +35,3 @@ export default defineNuxtConfig({
 
   plugins: ['~/plugins/axios'],
 })
-
