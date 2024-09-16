@@ -1,10 +1,7 @@
 <template>
   <!-- Involves the entire application -->
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <v-icon class="mr-2">mdi-check</v-icon>
-      <v-toolbar-title>Todo List</v-toolbar-title>
-    </v-app-bar>
+     <NavBar />
 
     <v-main>
       <v-container id="login" class="mt-12">
@@ -15,7 +12,7 @@
               <p class="text-subtitle-1 mb-4 text-secondary">Please enter your credentials to continue.</p>
             </div>
 
-            <v-form @submit.prevent>
+            <v-form @submit.prevent="login">
               <v-text-field
                 v-model="email"
                 label="Email"
@@ -43,9 +40,36 @@
 
 <script>
 export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+    };
+  },
   methods: {
-    login() {
-      //
+    async login() {
+      try {
+        // Send the credentials to the login endpoint
+        // await: pauses the execution of the login function until the Promise returned is resolved (or rejected)
+        // $api: Axios instance
+        const response = await this.$api.post('/login', {
+          email: this.email,
+          password: this.password,
+        });
+
+        console.log(response.data);
+
+        if (response.data) {
+          localStorage.setItem('authToken', response.data.token);
+          this.$router.push({ path: '/tasks' });
+        } else {
+          console.error('Login failed: User data not found.');
+          alert('Login failed. User data not found.');
+        }
+      } catch (error) {
+        console.error('Login failed:', error.response ? error.response.data : error);
+        alert('Login failed. Please check your credentials and try again.');
+      }
     },
   },
 };
