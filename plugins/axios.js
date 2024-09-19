@@ -7,7 +7,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig();
   // Creates an instance of Axios with the baseURL of the Laravel API
   const api = axios.create({
-    baseURL: config.public.apiBase
+    baseURL: config.public.apiBase,
+    withCredentials: true, // Allows the sending of cookies together with the request
   })
 
   // Intercepting every Axios request before it is sent
@@ -18,6 +19,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     // If the token exists, attach it to the Authorization header of the request
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+
+    // Retrieve the CSRF token from cookies
+    const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN'))?.split('=')[1];
+
+    // If the CSRF token exists, attach it to the headers of the request
+    if (xsrfToken) {
+      config.headers['X-XSRF-TOKEN'] = xsrfToken;
     }
 
     // Return the updated configuration object with the headers

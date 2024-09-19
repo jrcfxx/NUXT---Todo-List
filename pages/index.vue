@@ -57,15 +57,9 @@ export default {
           password: this.password,
         });
 
-        console.log(response.data);
-
-        if (response.data) {
-          localStorage.setItem('authToken', response.data.token);
-          this.$router.push({ path: '/tasks' });
-        } else {
-          console.error('Login failed: User data not found.');
-          alert('Login failed. User data not found.');
-        }
+        // the httpOnly cookie will be automatically configured in the browser
+        console.log(response);
+        this.$router.push({ path: '/tasks' });
       } catch (error) {
         console.error('Login failed:', error.response ? error.response.data : error);
         alert('Login failed. Please check your credentials and try again.');
