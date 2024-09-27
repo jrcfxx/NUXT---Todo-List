@@ -14,12 +14,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Intercepting every Axios request before it is sent
   api.interceptors.request.use((config) => {
 // Retrieve the authentication token from the local storage
-    //const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
 
     // If the token exists, attach it to the Authorization header of the request
-    //if (token) {
-    //  config.headers.Authorization = `Bearer ${token}`
-    //}
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
 
     // Retrieve the CSRF token from cookies
     const xsrfToken = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN'))?.split('=')[1];
