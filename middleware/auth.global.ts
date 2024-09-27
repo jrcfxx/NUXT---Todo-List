@@ -4,9 +4,10 @@ import {useAuthStore} from '~/store/authStore'
 
 export default defineNuxtRouteMiddleware ((to, from) => {
     const store = useAuthStore()
-    
+    const auth = store.getIsLoginSuccessful
     const permissions = store.getPermissions
     console.log(permissions)
+    console.log(auth)
 
     if (to.path==="/tasks") {
         if (!permissions.includes("create-tasks")) {
@@ -21,8 +22,7 @@ export default defineNuxtRouteMiddleware ((to, from) => {
         return ;
     }
 
-    console.log(store)
-    if (to.path!=='/' || !store.isLoginSuccessful) {
+    if (from.path !== '/' && to.path!=='/' && !store.isLoginSuccessful) {
         return navigateTo('/')
     }
 

@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('useAuthStore', {
     getRoles: (state)=>state.roles,
     getPermissions: (state)=>state.permissions,
     getToken: (state)=>state.token,
-    getIsLoginSuccessful: (state)=>state.isLoginSuccessful,
+    getIsLoginSuccessful: (state)=>state.token!=='',
   },
   actions: {
     setRoles(roles){
@@ -28,9 +28,6 @@ export const useAuthStore = defineStore('useAuthStore', {
     },
     setToken(token){
       this.token=token
-    },
-    setIsLoginSuccessful(){
-      this.isLoginSuccessful=this.token!==''
     },
   },
 });

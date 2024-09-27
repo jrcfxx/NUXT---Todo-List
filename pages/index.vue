@@ -90,13 +90,11 @@
 
         }).catch((error)=>{
           // ********************************* 
+          alert("Credenciais inválidas.")
         })
 
 
       await navigateTo('/tasks');
-      alert("Login bem sucedido")
-
-      
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error);
       alert('Login failed. Please check your credentials and try again.');
