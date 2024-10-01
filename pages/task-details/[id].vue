@@ -71,6 +71,8 @@
 </template>
 
 <script>
+import { useAuthStore } from '~/store/authStore';
+
 export default {
   data() {
     return {
@@ -84,9 +86,16 @@ export default {
   },
   methods: {
     async fetchTask(id) {
+      const store = useAuthStore();
+      const {$api} = useNuxtApp();
+
       // Fetch task details from the server using the task ID
       try {
-        const response = await this.$api.get(`/tasks/${id}`);
+        const response = await this.$api.get(`/tasks/${id}`, {
+          headers: {
+            Authorization: `Bearer ${store.getToken}`,
+          },
+        });
         this.task = response.data || {
           // If data is returned, assign it to 'task', or create a default empty object if the response is empty
           id: null,
@@ -118,7 +127,11 @@ export default {
           completeness_date: this.task.completeness_date ? this.task.completeness_date : null,
         };
 
-        await this.$api.put(`/tasks/${this.task.id}`, updatedTask);
+        await this.$api.put(`/tasks/${this.task.id}`, updatedTask, {
+          headers: {
+            Authorization: `Bearer ${store.getToken}`,
+          }
+        });
         alert('Task updated successfully');
         this.$router.push({ path: '/my-tasks' });
       } catch (error) {

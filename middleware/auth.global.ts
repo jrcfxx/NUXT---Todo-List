@@ -14,6 +14,20 @@ export default defineNuxtRouteMiddleware ((to, from) => {
         return ;
     }
 
+    if (to.path==="/my-tasks") {
+        if (!permissions.includes("view-tasks")) {
+            return navigateTo('/access-denied')
+        }
+        return ;
+    }
+
+    if (to.path.startsWith("/task-details/")) {
+        if (!permissions.includes("edit-tasks")) {
+            return navigateTo('/access-denied');
+        }
+        return;
+    }
+
     if (to.path==='/') {
         return ;
     }
@@ -22,6 +36,8 @@ export default defineNuxtRouteMiddleware ((to, from) => {
         
         return navigateTo('/')
     }
+
+    
 
     
 })

@@ -36,7 +36,6 @@ export const useAuthStore = defineStore('useAuthStore', {
       this.roles=[];
       this.permissions=[];
       this.token='';
-      this.isLoginSuccessful = false;
     },
 
     async logout() {

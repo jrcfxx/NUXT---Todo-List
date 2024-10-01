@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import { useAuthStore } from '~/store/authStore';
+
 export default {
   data() {
     return {
@@ -71,8 +73,15 @@ export default {
 
     // Search for the tasks of the logged user
     async fetchTasks() {
+      const store = useAuthStore();
+      const {$api} = useNuxtApp();
+
       try {
-        const response = await this.$api.get('/tasks');
+        const response = await this.$api.get('/tasks', {
+          headers: {
+            Authorization: `Bearer ${store.getToken}`,
+          }
+        });
         this.tasks = response.data;
       } catch (error) {
         console.error('Failed to fetch tasks:', error.response ? error.response.data : error);
@@ -83,7 +92,11 @@ export default {
     async deleteTask(taskId) {
       if (confirm('Are you sure you want to delete this task?')) {
         try {
-          await this.$api.delete(`/tasks/${taskId}`);
+          await this.$api.delete(`/tasks/${taskId}`, {
+          headers: {
+            Authorization: `Bearer ${store.getToken}`,
+          },
+        });
           this.tasks = this.tasks.filter(task => task.id !== taskId);
           alert('Task deleted successfully');
         } catch (error) {
@@ -95,7 +108,7 @@ export default {
 
     editTask(task) {
       // Redirects the user to the tasks details
-      this.$router.push({ path: `/task-details/${task.id}`, query: { task: JSON.stringify(task) } });
+      this.$router.push({ path: `/task-details/${task.id}`});
     }
   },
   // load the user tasks at the time the page is displayed

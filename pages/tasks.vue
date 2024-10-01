@@ -76,7 +76,10 @@
 </template>
 
 <script>
+import { useAuthStore } from '~/store/authStore';
+
 export default {
+  
   data() {
     return {
       title: '',
@@ -89,16 +92,28 @@ export default {
     };
   },
   methods: {
+    
     validateDates() {
       const today = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
-      if (this.completeness_date && this.completeness_date > today) {
-        this.errors.completeness_date = ['The completeness date cannot be in the future.'];
-        return false; // Validation failed
-      }
-      this.errors = {}; // Clear errors if everything is valid
-      return true; // Validation successful
+      
+    if (this.due_date && this.due_date < today) {
+      this.errors.due_date = ['The due date cannot be in the past.'];
+      return false; 
+    }
+
+    if (this.completeness_date && this.completeness_date > today) {
+      this.errors.completeness_date = ['The completeness date cannot be in the future.'];
+      return false; 
+    }
+
+    this.errors = {}; 
+    return true; 
     },
+
     async createTask() {
+      const store = useAuthStore();
+      const {$api} = useNuxtApp();
+
       if (!this.validateDates()) {
         // Stop submission if validation fails
         return;
@@ -117,9 +132,13 @@ export default {
           taskData.completeness_date = this.completeness_date;
         }
 
-        const response = await this.$api.post('/tasks', taskData);
-
+        const response = await this.$api.post('/tasks', taskData, {
+          headers: {
+            Authorization: `Bearer ${store.getToken}`,
+          },
+        });
         this.$router.push({ path: `/my-tasks` });
+
       } catch (error) {
         // Handle server-side errors
         if (error.response && error.response.data && error.response.data.errors) {

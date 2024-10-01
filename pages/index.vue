@@ -64,9 +64,6 @@
   let isLoading=ref(false)
   const store = useAuthStore()
   const {$api} = useNuxtApp()
-
-  console.log($api)
-
   
   const login = async () => {
     try {
@@ -89,9 +86,13 @@
 
 
         }).catch((error)=>{
-          // ********************************* 
-          alert("Credenciais inválidas.")
-        })
+            if (error.response && error.response.status === 401) {
+              alert("Credenciais inválidas.");
+            } else {
+              console.error("Unexpected error during login:", error);
+              alert("An unexpected error occurred. Please try again later.");
+            }
+          })
 
 
       await navigateTo('/tasks');
