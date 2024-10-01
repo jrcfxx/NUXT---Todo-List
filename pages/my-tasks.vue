@@ -90,6 +90,9 @@ export default {
 
     // Delete a task
     async deleteTask(taskId) {
+      const store = useAuthStore();
+      const {$api} = useNuxtApp();
+
       if (confirm('Are you sure you want to delete this task?')) {
         try {
           await this.$api.delete(`/tasks/${taskId}`, {
