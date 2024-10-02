@@ -42,16 +42,12 @@ export const useAuthStore = defineStore('useAuthStore', {
       const { $api } = useNuxtApp();
 
       try {
-        await $api.post('/logout', {}, {
-          headers: {
-            Authorization: `Bearer ${this.token}`, 
-          },
-        });
+        await $api.post('/logout');
 
         this.cleanStore();
 
       } catch (error) {
-        console.error("Erro ao fazer logout:", error);
+        alert("Erro ao fazer logout");
       }
       
 

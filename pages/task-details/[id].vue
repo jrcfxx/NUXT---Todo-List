@@ -70,83 +70,66 @@
   </v-app>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/store/authStore';
 
-export default {
-  data() {
-    return {
-      task: null, // is initially set to null until it's fetched from the API
-      errors: {} // store validation errors received from the server
+const task = ref(null); 
+const errors = ref({});
+const store = useAuthStore();
+const {$api} = useNuxtApp();
+const router = useRouter();
+const route = useRoute();
+
+const fetchTask = async (id) => {
+  try {
+    const response = await $api.get(`/tasks/${id}`);
+
+    task.value = response.data || {
+      id: null,
+      title: '',
+      description: '',
+      priority: 1,
+      status: '',
+      due_date: '',
+      completeness_date: ''
     };
-  },
-  mounted() {
-    const taskId = this.$route.params.id;
-    this.fetchTask(taskId);
-  },
-  methods: {
-    async fetchTask(id) {
-      const store = useAuthStore();
-      const {$api} = useNuxtApp();
 
-      // Fetch task details from the server using the task ID
-      try {
-        const response = await this.$api.get(`/tasks/${id}`, {
-          headers: {
-            Authorization: `Bearer ${store.getToken}`,
-          },
-        });
-        this.task = response.data || {
-          // If data is returned, assign it to 'task', or create a default empty object if the response is empty
-          id: null,
-          title: '',
-          description: '',
-          priority: 1,
-          status: '',
-          due_date: '',
-          completeness_date: ''
-        };
-        // Format dates for display in the input fields
-        this.task.due_date = this.formatDateToInput(this.task.due_date);
-        this.task.completeness_date = this.formatDateToInput(this.task.completeness_date);
-      } catch (error) {
-        console.error('Failed to fetch task:', error.response ? error.response.data : error);
-        alert('Error fetching task');
-      }
-    },
-    // Formats the date to 'YYYY-MM-DD'
-    formatDateToInput(dateString) {
-      return dateString ? new Date(dateString).toISOString().split('T')[0] : '';
-    },
-    async saveChanges() {
-      try {
-        const updatedTask = {
-          ...this.task,
-          // send date in 'YYYY-MM-DD' format
-          due_date: this.task.due_date ? this.task.due_date : null,
-          completeness_date: this.task.completeness_date ? this.task.completeness_date : null,
-        };
+    task.value.due_date = formatDateToInput(task.value.due_date);
+    task.value.completeness_date = formatDateToInput(task.value.completeness_date);
 
-        await this.$api.put(`/tasks/${this.task.id}`, updatedTask, {
-          headers: {
-            Authorization: `Bearer ${store.getToken}`,
-          }
-        });
-        alert('Task updated successfully');
-        this.$router.push({ path: '/my-tasks' });
-      } catch (error) {
-        if (error.response && error.response.data && error.response.data.messages) {
-          const errorMessages = error.response.data.messages;
-          this.handleErrors(errorMessages);
-        } else {
-          alert('Failed to update task: Unknown error');
-        }
-      }
-    },
-    // Capture and store validation errors from the server
-    handleErrors(errors) {
-      this.errors = errors || {};
-    }
+  } catch (error) {
+    alert('Error fetching task');
   }
 };
+
+const formatDateToInput = (dateString) => {
+  return dateString ? new Date(dateString).toISOString().split('T')[0] : '';
+};
+
+const saveChanges = async () => {
+  try {
+    const updatedTask = {
+      ...task.value,
+      // send date in 'YYYY-MM-DD' format
+      due_date: task.value.due_date || null,
+      completeness_date: task.value.completeness_date || null,
+    };
+
+    await $api.put(`/tasks/${task.value.id}`, updatedTask);
+
+    alert('Task updated successfully');
+    router.push({ path: '/my-tasks' });
+  } catch (error) {
+      alert('Failed to update task');
+    }
+};
+
+onMounted(() => {
+  const taskId = route.params.id;
+  fetchTask(taskId);
+});
 </script>
+
+

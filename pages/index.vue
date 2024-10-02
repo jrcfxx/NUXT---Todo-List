@@ -58,12 +58,15 @@
 
 <script setup>
   import {useAuthStore} from '~/store/authStore' 
+  import { useRouter } from 'vue-router'
+  import { ref } from 'vue'
 
   let email=ref('')
   let password=ref('')
   let isLoading=ref(false)
   const store = useAuthStore()
   const {$api} = useNuxtApp()
+  const router = useRouter()
   
   const login = async () => {
     try {
@@ -84,20 +87,17 @@
         store.setPermissions(result.permissions)
 
 
+        router.push('/tasks');
 
         }).catch((error)=>{
             if (error.response && error.response.status === 401) {
-              alert("Credenciais inválidas.");
+              alert("Invalid credentials.");
             } else {
-              console.error("Unexpected error during login:", error);
               alert("An unexpected error occurred. Please try again later.");
             }
           })
 
-
-      await navigateTo('/tasks');
     } catch (error) {
-      console.error('Login failed:', error.response ? error.response.data : error);
       alert('Login failed. Please check your credentials and try again.');
     } finally {
       isLoading.value = false; 

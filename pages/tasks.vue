@@ -75,80 +75,63 @@
   </v-app>
 </template>
 
-<script>
+<script setup>
 import { useAuthStore } from '~/store/authStore';
+import { ref } from 'vue';
 
-export default {
-  
-  data() {
-    return {
-      title: '',
-      description: '',
-      priority: 1,
-      status: 'Open',
-      due_date: '',
-      completeness_date: '',
-      errors: {} // Store error messages
+const title = ref('');
+const description = ref('');
+const priority = ref(1);
+const status = ref('Open');
+const due_date = ref('');
+const completeness_date = ref('');
+const errors = ref({});
+
+const store = useAuthStore();
+const {$api} = useNuxtApp();
+const router = useRouter();
+const validateDates = () => {
+  const today = new Date().toISOString().split('T')[0]; 
+
+  if (due_date.value && due_date.value < today) {
+    errors.value.due_date = ['The due date cannot be in the past.'];
+    return false;
+  }
+
+  if (completeness_date.value && completeness_date.value > today) {
+    errors.value.completeness_date = ['The completeness date cannot be in the future.'];
+    return false;
+  }
+
+  errors.value = {}; 
+  return true;
+};
+
+const createTask = async () => {
+  if (!validateDates()) {
+    // Stop submission if validation fails
+    return;
+  }
+
+  try {
+    const taskData = {
+      title: title.value,
+      description: description.value,
+      priority: priority.value,
+      status: status.value,
+      due_date: due_date.value,
     };
-  },
-  methods: {
+
+    if (completeness_date.value) {
+      taskData.completeness_date = completeness_date.value;
+    }
+
+    const response = await $api.post('/tasks', taskData);
+
+    router.push({ path: '/my-tasks' });
+  } catch (error) {
+      alert('Task creation failed');
     
-    validateDates() {
-      const today = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
-      
-    if (this.due_date && this.due_date < today) {
-      this.errors.due_date = ['The due date cannot be in the past.'];
-      return false; 
-    }
-
-    if (this.completeness_date && this.completeness_date > today) {
-      this.errors.completeness_date = ['The completeness date cannot be in the future.'];
-      return false; 
-    }
-
-    this.errors = {}; 
-    return true; 
-    },
-
-    async createTask() {
-      const store = useAuthStore();
-      const {$api} = useNuxtApp();
-
-      if (!this.validateDates()) {
-        // Stop submission if validation fails
-        return;
-      }
-
-      try {
-        const taskData = {
-          title: this.title,
-          description: this.description,
-          priority: this.priority,
-          status: this.status,
-          due_date: this.due_date,
-        };
-
-        if (this.completeness_date) {
-          taskData.completeness_date = this.completeness_date;
-        }
-
-        const response = await this.$api.post('/tasks', taskData, {
-          headers: {
-            Authorization: `Bearer ${store.getToken}`,
-          },
-        });
-        this.$router.push({ path: `/my-tasks` });
-
-      } catch (error) {
-        // Handle server-side errors
-        if (error.response && error.response.data && error.response.data.errors) {
-          this.errors = error.response.data.errors;
-        } else {
-          console.error('Task creation failed:', error);
-          alert('Task creation failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
-        }
-      }
-    },
-  },
+  }
 };
 </script>

@@ -53,71 +53,52 @@
   </v-app>
 </template>
 
-<script>
+<script setup>
 import { useAuthStore } from '~/store/authStore';
+import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
 
-export default {
-  data() {
-    return {
-      tasks: [],
-    };
-  },
-  methods: {
-    formatDate(dateString) {
-      if (!dateString) {
-        return '-'; // In case the date is null
-      }
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    },
+const tasks = ref([]);
+const store = useAuthStore();
+const { $api } = useNuxtApp();
+const router = useRouter();
 
-    // Search for the tasks of the logged user
-    async fetchTasks() {
-      const store = useAuthStore();
-      const {$api} = useNuxtApp();
-
-      try {
-        const response = await this.$api.get('/tasks', {
-          headers: {
-            Authorization: `Bearer ${store.getToken}`,
-          }
-        });
-        this.tasks = response.data;
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error.response ? error.response.data : error);
-      }
-    },
-
-    // Delete a task
-    async deleteTask(taskId) {
-      const store = useAuthStore();
-      const {$api} = useNuxtApp();
-
-      if (confirm('Are you sure you want to delete this task?')) {
-        try {
-          await this.$api.delete(`/tasks/${taskId}`, {
-          headers: {
-            Authorization: `Bearer ${store.getToken}`,
-          },
-        });
-          this.tasks = this.tasks.filter(task => task.id !== taskId);
-          alert('Task deleted successfully');
-        } catch (error) {
-          console.error('Failed to delete task:', error.response ? error.response.data : error);
-          alert('Failed to delete task');
-        }
-      }
-    },
-
-    editTask(task) {
-      // Redirects the user to the tasks details
-      this.$router.push({ path: `/task-details/${task.id}`});
-    }
-  },
-  // load the user tasks at the time the page is displayed
-  mounted() {
-    // fetch the user tasks and load those tasks to be displayed in the component
-    this.fetchTasks();
-  },
+const formatDate = (dateString) => {
+  if (!dateString) {
+    return '-'; // In case the date is null
+  }
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
 };
+
+// Search for the tasks of the logged user
+const fetchTasks = async () => {
+  try {
+    const response = await $api.get('/tasks');
+    tasks.value = response.data;
+  } catch (error) {
+    alert('Failed to fetch tasks.');
+  }
+};
+
+const deleteTask = async (taskId) => {
+  if (confirm('Are you sure you want to delete this task?')) {
+    try {
+      await $api.delete(`/tasks/${taskId}`);
+      tasks.value = tasks.value.filter(task => task.id !== taskId);
+      alert('Task deleted successfully');
+    } catch (error) {
+      alert('Failed to delete task');
+    }
+  }
+};
+
+const editTask = (task) => {
+  // Redirects the user to the tasks details
+  router.push({ path: `/task-details/${task.id}` });
+};
+
+onMounted(() => {
+  fetchTasks();
+});
 </script>
