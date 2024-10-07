@@ -86,6 +86,8 @@
         store.setRoles(result.roles)
         store.setPermissions(result.permissions)
 
+        localStorage.setItem('authToken', result.token);
+        localStorage.setItem('userPermissions', JSON.stringify(result.permissions));
 
         router.push('/tasks');
 

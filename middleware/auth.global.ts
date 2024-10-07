@@ -1,43 +1,38 @@
 import {useAuthStore} from '~/store/authStore' 
+import { routePermissions } from '~/utils/permissions';
 
 
+export default defineNuxtRouteMiddleware (async (to, from) => {
 
-export default defineNuxtRouteMiddleware ((to, from) => {
-    const store = useAuthStore()
-    const auth = store.getIsLoginSuccessful
-    const permissions = store.getPermissions
-
-    if (to.path==="/tasks") {
-        if (!permissions.includes("create-tasks")) {
-            return navigateTo('/access-denied')
-        }
-        return ;
-    }
-
-    if (to.path==="/my-tasks") {
-        if (!permissions.includes("view-tasks")) {
-            return navigateTo('/access-denied')
-        }
-        return ;
-    }
-
-    if (to.path.startsWith("/task-details/")) {
-        if (!permissions.includes("edit-tasks")) {
-            return navigateTo('/access-denied');
-        }
+    // check if the code is running on the server-side
+    // ensure that the code is executed only on the client side, preventing unnecessary or invalid operations on the server
+    if (process.server) {
         return;
     }
 
-    if (to.path==='/') {
-        return ;
+    const store = useAuthStore();
+    await store.initializeStore();
+    await nextTick(); // Ensure that the DOM updates finish before proceeding
+    
+    const auth = store.getIsLoginSuccessful;
+    const permissions = store.getPermissions;
+
+    if (!auth) {
+        if (to.path !== '/') {
+          return navigateTo('/');
+        }
     }
 
-    if (from.path !== '/' && to.path!=='/' && !store.isLoginSuccessful) {
-        
-        return navigateTo('/')
+    for (const path in routePermissions) {
+        // check if the current route path matches or starts with a defined permission path in '~/utils/permissions'
+        if (to.path === path || to.path.startsWith(path)) {
+        const requiredPermission = routePermissions[path]; // get the required permission for the current route
+
+        if (!permissions.includes(requiredPermission)) {
+            return navigateTo('/access-denied');
+        }
+        return; // if the user has the permission, allow access to the route
+        }
     }
+});
 
-    
-
-    
-})
