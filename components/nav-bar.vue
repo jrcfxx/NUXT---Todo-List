@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '~/store/authStore';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -19,8 +19,7 @@ const router = useRouter();
 const route = useRoute();
 
 const isAuthenticated = computed(() => {
-  const isAuth = authStore.getRoles.length > 0 || authStore.getPermissions.length > 0;
-  return isAuth;
+  return authStore.getRoles.length > 0 || authStore.getPermissions.length > 0;
 });
 const isLoadingUserInfo = ref(true);
 
