@@ -11,76 +11,87 @@ export const useAuthStore = defineStore('useAuthStore', {
      * @type {string[]}
      */
     permissions: [],
-    token: '',
-    isLoginSuccessful: false 
-
+    userEmail: '',
   }),
+
   getters: {
     getRoles: (state)=>state.roles,
     getPermissions: (state)=>state.permissions,
-    getToken: (state)=>state.token,
-    // If state.token is a valid token (non-empty string), !!state.token will return true.
-    getIsLoginSuccessful: (state) => !!state.token,
+    getUserEmail: (state) => state.userEmail,
   },
+
   actions: {
-    setRoles(roles){
-      this.roles=roles
+    setRoles(roles) {
+      this.roles = roles;
     },
     setPermissions(permissions) {
       this.permissions = permissions;
-      // Sets the user permissions in the store and saves them to localStorage on the client side.
-      if (process.client) {
-        localStorage.setItem('userPermissions', JSON.stringify(permissions));
-      }
     },
-    setToken(token) {
-      this.token = token;
-      // Sets the authentication token in the store and saves it to localStorage on the client side. 
-      if (process.client) {
-        localStorage.setItem('authToken', token); 
-      }
-      this.isLoginSuccessful = !!token; 
+    setUserEmail(userEmail) {
+      this.userEmail = userEmail;
     },
 
-    // Restores the token and permissions from localStorage (client-side only) and updates the state accordingly.
-    initializeStore() {
-      if (process.client) {
-        const token = localStorage.getItem('authToken');
-        const permissions = localStorage.getItem('userPermissions');
-    
-        if (token) {
-          this.token = token;
-          this.isLoginSuccessful = true;
-          this.permissions = permissions ? JSON.parse(permissions) : [];
-        } else {
-          this.isLoginSuccessful = false;
-        }
-      }
-    },
-    
-
-    // Clears the store's state and removes the token and permissions from localStorage
     async cleanStore() {
       this.roles = [];
       this.permissions = [];
-      this.token = '';
-      if (process.client) {
-        localStorage.removeItem('authToken'); 
-        localStorage.removeItem('userPermissions');
-      }
-      this.isLoginSuccessful = false;
+      this.userEmail = '';
+      localStorage.removeItem('token');
     },
 
-    
+    loadFromLocalStorage() {
+      const token = localStorage.getItem('token');
+      return token;
+    },
+
+    async login(email, password) {
+      const { $api } = useNuxtApp();
+
+      try {
+        const response = await $api.post('/login', { email, password });
+        
+        if (response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          await this.getUserInfo();
+        }
+      } catch (error) {
+        alert('Login failed');
+      }
+    },
+
     async logout() {
       const { $api } = useNuxtApp();
       try {
-        await $api.post('/logout');
-        // Clears the store and removes token/permissions
+        const response = await $api.post('/logout');
         this.cleanStore();
       } catch (error) {
-        alert("Erro ao fazer logout");
+        alert('Logout failed');
       }
-    }
+    },
+
+    async getUserInfo() {
+      const { $api } = useNuxtApp();
+
+      try {
+        const token = this.loadFromLocalStorage();
+        if (!token) {
+          throw new Error('Token not found');
+        }
+
+        const response = await $api.get('/user-info');
+
+        if (!response || response.error) {
+          this.cleanStore();
+          return { error: true };
+        }
+
+        this.setRoles(response.data.roles);
+        this.setPermissions(response.data.permissions);
+        this.setUserEmail(response.data.email);
+
+        return response.data;
+      } catch (error) {
+        return { error: true };
+      }
+    },
   },
 });

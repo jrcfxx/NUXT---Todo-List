@@ -17,7 +17,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Intercepting every Axios request before it is sent
   api.interceptors.request.use((config) => {
     // Retrieve the authentication token from the state
-    const token = authStore.getToken;
+    const token = localStorage.getItem('token');
 
     // If the token exists, attach it to the Authorization header of the request
     if (token) {

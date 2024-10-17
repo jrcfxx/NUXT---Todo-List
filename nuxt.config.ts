@@ -33,5 +33,7 @@ export default defineNuxtConfig({
     },
   },
 
+  ssr: false,
+
   plugins: ['~/plugins/axios'],
 })

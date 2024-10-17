@@ -13,7 +13,7 @@
           </p>
         </div>
 
-        <v-form @submit.prevent="login">
+        <v-form @submit.prevent="handleLogin">
           <v-text-field
             v-model="email"
             label="Email"
@@ -68,43 +68,18 @@
   const {$api} = useNuxtApp()
   const router = useRouter()
   
-  const login = async () => {
+const handleLogin = async () => {
+    isLoading.value = true;
+
     try {
-      isLoading.value = true;
-
-      // Send the credentials to the login endpoint
-      // await: pauses the execution of the login function until the Promise returned is resolved (or rejected)
-      // $api: Axios instance
-
-      const response = await $api.post('/login', {
-        email: email.value,
-        password: password.value,
-      }).then((response)=>{
-
-        const result = response.data
-        store.setToken(result.token)
-        store.setRoles(result.roles)
-        store.setPermissions(result.permissions)
-
-        localStorage.setItem('authToken', result.token);
-        localStorage.setItem('userPermissions', JSON.stringify(result.permissions));
-
+        await store.login(email.value, password.value);
         router.push('/tasks');
-
-        }).catch((error)=>{
-            if (error.response && error.response.status === 401) {
-              alert("Invalid credentials.");
-            } else {
-              alert("An unexpected error occurred. Please try again later.");
-            }
-          })
-
     } catch (error) {
-      alert('Login failed. Please check your credentials and try again.');
+        alert('Login failed. Please check your credentials.');
     } finally {
-      isLoading.value = false; 
+        isLoading.value = false;
     }
-  }
+};
 </script>
 
 
