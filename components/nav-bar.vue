@@ -21,6 +21,7 @@ const route = useRoute();
 const isAuthenticated = computed(() => {
   return authStore.getRoles.length > 0 || authStore.getPermissions.length > 0;
 });
+// track if the user info is still loading
 const isLoadingUserInfo = ref(true);
 
 const logout = async () => {
@@ -32,6 +33,7 @@ const redirect = (path) => {
   router.push({ path });
 };
 
+// runs when the component is mounted
 onMounted(async () => {
   const token = authStore.loadFromLocalStorage();
 
@@ -44,6 +46,7 @@ onMounted(async () => {
     }
   }
 
-  isLoadingUserInfo.value = false;
+// after load user info, set the loading state to false
+isLoadingUserInfo.value = false;
 });
 </script>

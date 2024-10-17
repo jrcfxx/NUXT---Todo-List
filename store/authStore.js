@@ -51,6 +51,7 @@ export const useAuthStore = defineStore('useAuthStore', {
         
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
+          // retrieve user information
           await this.getUserInfo();
         }
       } catch (error) {
@@ -68,17 +69,21 @@ export const useAuthStore = defineStore('useAuthStore', {
       }
     },
 
+    // retrieve user information
     async getUserInfo() {
       const { $api } = useNuxtApp();
 
       try {
+        // load the token saved in localStorage.
         const token = this.loadFromLocalStorage();
         if (!token) {
+          // error if the token is not found
           throw new Error('Token not found');
         }
 
         const response = await $api.get('/user-info');
 
+        // if the answer is invalid or contains error, clean the store
         if (!response || response.error) {
           this.cleanStore();
           return { error: true };
