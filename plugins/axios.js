@@ -7,12 +7,13 @@ import { useAuthStore } from '~/store/authStore';
 export default defineNuxtPlugin((nuxtApp) => {
   const authStore = useAuthStore();
   const config = useRuntimeConfig();
+  const router = useRouter()
 
   // Creates an instance of Axios with the baseURL of the Laravel API
   const api = axios.create({
     baseURL: config.public.apiBase,
     withCredentials: true, // Allows the sending of cookies together with the request
-  })
+  });
 
   // Intercepting every Axios request before it is sent
   api.interceptors.request.use((config) => {
@@ -26,8 +27,22 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     // Return the updated configuration object with the headers
     return config
-  })
+  });
+
+    // Response interceptor
+  axios.interceptors.response.use(function (response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // Do something with response data
+    return response;
+  }, function (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      authStore.cleanStore();
+      router.push('/');
+    }
+    return Promise.reject(error);
+  });
 
   // Provides the configured Axios instance across the Nuxt application
-  nuxtApp.provide('api', api)
+  nuxtApp.provide('api', api);
 })
