@@ -55,7 +55,6 @@
 
 <script setup>
 import { useAuthStore } from '~/store/authStore';
-import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 
 const tasks = ref([]);
@@ -72,24 +71,18 @@ const formatDate = (dateString) => {
 };
 
 // Search for the tasks of the logged user
-const fetchTasks = async () => {
-  try {
-    const response = await $api.get('/tasks');
+const fetchTasks = () => {
+  $api.get('/tasks').then((response) => {
     tasks.value = response.data;
-  } catch (error) {
-    alert('Failed to fetch tasks.');
-  }
+  }).catch(() => {alert('Failed to fetch tasks.');});
 };
 
-const deleteTask = async (taskId) => {
+const deleteTask = (taskId) => {
   if (confirm('Are you sure you want to delete this task?')) {
-    try {
-      await $api.delete(`/tasks/${taskId}`);
+    $api.delete(`/tasks/${taskId}`).then(() => {
       tasks.value = tasks.value.filter(task => task.id !== taskId);
       alert('Task deleted successfully');
-    } catch (error) {
-      alert('Failed to delete task');
-    }
+    }).catch(() => {alert('Failed to delete task');});
   }
 };
 

@@ -72,7 +72,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '~/store/authStore';
 
 const task = ref(null); 
@@ -82,10 +81,9 @@ const {$api} = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 
-const fetchTask = async (id) => {
-  try {
-    const response = await $api.get(`/tasks/${id}`);
-
+const fetchTask = (id) => {
+  
+  $api.get(`/tasks/${id}`).then((response) => {
     task.value = response.data || {
       id: null,
       title: '',
@@ -98,33 +96,30 @@ const fetchTask = async (id) => {
 
     task.value.due_date = formatDateToInput(task.value.due_date);
     task.value.completeness_date = formatDateToInput(task.value.completeness_date);
+  }).catch( () => {alert('Failed to fetch task');})
 
-  } catch (error) {
-    alert('Error fetching task');
-  }
-};
+
+
+
+  };
 
 const formatDateToInput = (dateString) => {
   return dateString ? new Date(dateString).toISOString().split('T')[0] : '';
 };
 
 const saveChanges = async () => {
-  try {
-    const updatedTask = {
-      ...task.value,
-      // send date in 'YYYY-MM-DD' format
-      due_date: task.value.due_date || null,
-      completeness_date: task.value.completeness_date || null,
-    };
+  const updatedTask = {
+    ...task.value,
+    due_date: task.value.due_date || null,
+    completeness_date: task.value.completeness_date || null,
+  };
 
-    await $api.put(`/tasks/${task.value.id}`, updatedTask);
-
+  await $api.put(`/tasks/${task.value.id}`, updatedTask).then(() => {
     alert('Task updated successfully');
     router.push({ path: '/my-tasks' });
-  } catch (error) {
-      alert('Failed to update task');
-    }
+  }).catch(() => {alert('Failed to update task');});
 };
+
 
 onMounted(() => {
   const taskId = route.params.id;

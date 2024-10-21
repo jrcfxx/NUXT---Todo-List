@@ -10,19 +10,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useAuthStore } from '~/store/authStore';
-import { useRouter, useRoute } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
 const isAuthenticated = computed(() => {
-  return authStore.getRoles.length > 0 || authStore.getPermissions.length > 0;
+  return authStore.getUserEmail != '';
 });
-// track if the user info is still loading
-const isLoadingUserInfo = ref(true);
 
 const logout = async () => {
   await authStore.logout();
@@ -30,23 +27,7 @@ const logout = async () => {
 };
 
 const redirect = (path) => {
-  router.push({ path });
+  router.push({path});
 };
 
-// runs when the component is mounted
-onMounted(async () => {
-  const token = authStore.loadFromLocalStorage();
-
-  if (token) {
-    const userInfo = await authStore.getUserInfo();
-
-    if (userInfo.error) {
-      authStore.cleanStore();
-      router.push('/');
-    }
-  }
-
-// after load user info, set the loading state to false
-isLoadingUserInfo.value = false;
-});
 </script>

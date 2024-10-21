@@ -107,31 +107,26 @@ const validateDates = () => {
   return true;
 };
 
-const createTask = async () => {
+const createTask = () => {
   if (!validateDates()) {
-    // Stop submission if validation fails
-    return;
+    return; // Stop if validation fails
   }
 
-  try {
-    const taskData = {
-      title: title.value,
-      description: description.value,
-      priority: priority.value,
-      status: status.value,
-      due_date: due_date.value,
-    };
+  const taskData = {
+    title: title.value,
+    description: description.value,
+    priority: priority.value,
+    status: status.value,
+    due_date: due_date.value,
+  };
 
-    if (completeness_date.value) {
-      taskData.completeness_date = completeness_date.value;
-    }
+  if (completeness_date.value) {
+    taskData.completeness_date = completeness_date.value;
+  }
 
-    const response = await $api.post('/tasks', taskData);
-
+  $api.post('/tasks', taskData).then(() => {
     router.push({ path: '/my-tasks' });
-  } catch (error) {
-      alert('Task creation failed');
-    
-  }
+    }).catch(() => {alert('Task creation failed');});
 };
+
 </script>

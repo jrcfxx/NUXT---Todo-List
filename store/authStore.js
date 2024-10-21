@@ -31,72 +31,48 @@ export const useAuthStore = defineStore('useAuthStore', {
       this.userEmail = userEmail;
     },
 
-    async cleanStore() {
+    cleanStore() {
       this.roles = [];
       this.permissions = [];
       this.userEmail = '';
       localStorage.removeItem('token');
     },
 
-    loadFromLocalStorage() {
-      const token = localStorage.getItem('token');
-      return token;
+    getTokenFromStorage() {
+      return localStorage.getItem('token');
     },
 
     async login(email, password) {
       const { $api } = useNuxtApp();
 
-      try {
-        const response = await $api.post('/login', { email, password });
-        
+      await $api.post('/login', { email, password }).then(
+        async (response) => {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           // retrieve user information
           await this.getUserInfo();
         }
-      } catch (error) {
-        alert('Login failed');
-      }
+      }).catch(() => alert('Login failed'));
     },
 
     async logout() {
       const { $api } = useNuxtApp();
-      try {
-        const response = await $api.post('/logout');
+
+      await $api.post('/logout').then(() => {
         this.cleanStore();
-      } catch (error) {
-        alert('Logout failed');
-      }
+      }).catch(() => { alert('Logout failed')});
     },
 
     // retrieve user information
     async getUserInfo() {
       const { $api } = useNuxtApp();
 
-      try {
-        // load the token saved in localStorage.
-        const token = this.loadFromLocalStorage();
-        if (!token) {
-          // error if the token is not found
-          throw new Error('Token not found');
-        }
-
-        const response = await $api.get('/user-info');
-
-        // if the answer is invalid or contains error, clean the store
-        if (!response || response.error) {
-          this.cleanStore();
-          return { error: true };
-        }
-
+      return await $api.get('/user-info').then(response => {
         this.setRoles(response.data.roles);
         this.setPermissions(response.data.permissions);
         this.setUserEmail(response.data.email);
-
-        return response.data;
-      } catch (error) {
-        return { error: true };
-      }
+        return true
+      }).catch(() => false) 
     },
   },
 });

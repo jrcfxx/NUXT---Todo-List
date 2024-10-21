@@ -58,7 +58,6 @@
 
 <script setup>
   import {useAuthStore} from '~/store/authStore' 
-  import { useRouter } from 'vue-router'
   import { ref } from 'vue'
 
   let email=ref('')
@@ -71,14 +70,12 @@
 const handleLogin = async () => {
     isLoading.value = true;
 
-    try {
-        await store.login(email.value, password.value);
+    store.login(email.value, password.value).then(() => {
         router.push('/tasks');
-    } catch (error) {
-        alert('Login failed. Please check your credentials.');
-    } finally {
+    }).catch(() => {alert('Login failed. Please check your credentials.');
+    }).finally(() => {
         isLoading.value = false;
-    }
+    });
 };
 </script>
 
