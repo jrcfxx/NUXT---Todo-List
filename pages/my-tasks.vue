@@ -53,55 +53,45 @@
   </v-app>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      tasks: [],
-    };
-  },
-  methods: {
-    formatDate(dateString) {
-      if (!dateString) {
-        return '-'; // In case the date is null
-      }
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    },
+<script setup>
+import { useAuthStore } from '~/store/authStore';
+import { ref, onMounted } from 'vue';
 
-    // Search for the tasks of the logged user
-    async fetchTasks() {
-      try {
-        const response = await this.$api.get('/tasks');
-        this.tasks = response.data;
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error.response ? error.response.data : error);
-      }
-    },
+const tasks = ref([]);
+const store = useAuthStore();
+const { $api } = useNuxtApp();
+const router = useRouter();
 
-    // Delete a task
-    async deleteTask(taskId) {
-      if (confirm('Are you sure you want to delete this task?')) {
-        try {
-          await this.$api.delete(`/tasks/${taskId}`);
-          this.tasks = this.tasks.filter(task => task.id !== taskId);
-          alert('Task deleted successfully');
-        } catch (error) {
-          console.error('Failed to delete task:', error.response ? error.response.data : error);
-          alert('Failed to delete task');
-        }
-      }
-    },
-
-    editTask(task) {
-      // Redirects the user to the tasks details
-      this.$router.push({ path: `/task-details/${task.id}`, query: { task: JSON.stringify(task) } });
-    }
-  },
-  // load the user tasks at the time the page is displayed
-  mounted() {
-    // fetch the user tasks and load those tasks to be displayed in the component
-    this.fetchTasks();
-  },
+const formatDate = (dateString) => {
+  if (!dateString) {
+    return '-'; // In case the date is null
+  }
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
 };
+
+// Search for the tasks of the logged user
+const fetchTasks = () => {
+  $api.get('/tasks').then((response) => {
+    tasks.value = response.data;
+  }).catch(() => {alert('Failed to fetch tasks.');});
+};
+
+const deleteTask = (taskId) => {
+  if (confirm('Are you sure you want to delete this task?')) {
+    $api.delete(`/tasks/${taskId}`).then(() => {
+      tasks.value = tasks.value.filter(task => task.id !== taskId);
+      alert('Task deleted successfully');
+    }).catch(() => {alert('Failed to delete task');});
+  }
+};
+
+const editTask = (task) => {
+  // Redirects the user to the tasks details
+  router.push({ path: `/task-details/${task.id}` });
+};
+
+onMounted(() => {
+  fetchTasks();
+});
 </script>
