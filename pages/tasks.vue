@@ -75,61 +75,58 @@
   </v-app>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      title: '',
-      description: '',
-      priority: 1,
-      status: 'Open',
-      due_date: '',
-      completeness_date: '',
-      errors: {} // Store error messages
-    };
-  },
-  methods: {
-    validateDates() {
-      const today = new Date().toISOString().split('T')[0]; // Get today's date in 'YYYY-MM-DD' format
-      if (this.completeness_date && this.completeness_date > today) {
-        this.errors.completeness_date = ['The completeness date cannot be in the future.'];
-        return false; // Validation failed
-      }
-      this.errors = {}; // Clear errors if everything is valid
-      return true; // Validation successful
-    },
-    async createTask() {
-      if (!this.validateDates()) {
-        // Stop submission if validation fails
-        return;
-      }
+<script setup>
+import { useAuthStore } from '~/store/authStore';
+import { ref } from 'vue';
 
-      try {
-        const taskData = {
-          title: this.title,
-          description: this.description,
-          priority: this.priority,
-          status: this.status,
-          due_date: this.due_date,
-        };
+const title = ref('');
+const description = ref('');
+const priority = ref(1);
+const status = ref('Open');
+const due_date = ref('');
+const completeness_date = ref('');
+const errors = ref({});
 
-        if (this.completeness_date) {
-          taskData.completeness_date = this.completeness_date;
-        }
+const store = useAuthStore();
+const {$api} = useNuxtApp();
+const router = useRouter();
+const validateDates = () => {
+  const today = new Date().toISOString().split('T')[0]; 
 
-        const response = await this.$api.post('/tasks', taskData);
+  if (due_date.value && due_date.value < today) {
+    errors.value.due_date = ['The due date cannot be in the past.'];
+    return false;
+  }
 
-        this.$router.push({ path: `/my-tasks` });
-      } catch (error) {
-        // Handle server-side errors
-        if (error.response && error.response.data && error.response.data.errors) {
-          this.errors = error.response.data.errors;
-        } else {
-          console.error('Task creation failed:', error);
-          alert('Task creation failed: ' + (error.response ? error.response.data.message : 'Unknown error'));
-        }
-      }
-    },
-  },
+  if (completeness_date.value && completeness_date.value > today) {
+    errors.value.completeness_date = ['The completeness date cannot be in the future.'];
+    return false;
+  }
+
+  errors.value = {}; 
+  return true;
 };
+
+const createTask = () => {
+  if (!validateDates()) {
+    return; // Stop if validation fails
+  }
+
+  const taskData = {
+    title: title.value,
+    description: description.value,
+    priority: priority.value,
+    status: status.value,
+    due_date: due_date.value,
+  };
+
+  if (completeness_date.value) {
+    taskData.completeness_date = completeness_date.value;
+  }
+
+  $api.post('/tasks', taskData).then(() => {
+    router.push({ path: '/my-tasks' });
+    }).catch(() => {alert('Task creation failed');});
+};
+
 </script>
