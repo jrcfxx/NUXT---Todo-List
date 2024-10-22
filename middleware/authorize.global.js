@@ -2,10 +2,10 @@ import { useAuthStore } from '~/store/authStore';
 import { routePermissions } from '~/utils/permissions';
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-    const store = useAuthStore();
+    const authStore = useAuthStore();
 
     // Validate if the user has the required permissions for the route
-    const userPermissions = store.getPermissions;
+    const userPermissions = authStore.getPermissions;
     
     // iterate on routes that have associated permissions
     for (const path in routePermissions) {
