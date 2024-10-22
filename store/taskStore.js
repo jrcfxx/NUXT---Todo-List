@@ -23,45 +23,42 @@ export const useTaskStore = defineStore('useTaskStore', {
     },
 
     createTask(taskData) {
-      const { $api } = useNuxtApp();
-
-      return $api.post('/tasks', taskData)
-        .then(() => true) 
-        .catch(() => { 
-          alert('Task creation failed'); 
-          return false; 
+        const { $api } = useNuxtApp();
+  
+        return $api.post('/tasks', taskData)
+          .catch(() => { 
+            alert('Task creation failed'); 
         });
     },
 
-    async submitTask(title, description, priority, status, due_date, completeness_date) {
-      const validationErrors = this.validateDates(due_date, completeness_date);
-      
-      // If there are validation errors, return them
-      if (Object.keys(validationErrors).length) {
-        return { success: false, errors: validationErrors }; // Return success as false and include errors
-      }
-
-      const taskData = {
-        title,
-        description,
-        priority,
-        status,
-        due_date,
-        completeness_date: completeness_date || null, // if completeness_date is not provided
-      };
-
-      const success = await this.createTask(taskData);
-      return { success };
+    submitTask(title, description, priority, status, due_date, completeness_date) {
+        const validationErrors = this.validateDates(due_date, completeness_date);
+        
+        // If there are validation errors, return them
+        if (Object.keys(validationErrors).length) {
+          return { errors: validationErrors }; // Return validation errors
+        }
+  
+        const taskData = {
+          title,
+          description,
+          priority,
+          status,
+          due_date,
+          completeness_date: completeness_date || null, // if completeness_date is not provided
+        };
+  
+        this.createTask(taskData);
     },
 
     // fetch all tasks
     fetchTasks() {
-      const { $api } = useNuxtApp();
-      
-      return $api.get('/tasks').then((response) => response.data)
-        .catch(() => {
-          alert('Failed to fetch tasks.');
-          return []; 
+        const { $api } = useNuxtApp();
+        
+        return $api.get('/tasks').then((response) => response.data)
+          .catch(() => {
+            alert('Failed to fetch tasks.');
+            return []; 
         });
     },
 
@@ -69,15 +66,10 @@ export const useTaskStore = defineStore('useTaskStore', {
       const { $api } = useNuxtApp();
 
       if (confirm('Are you sure you want to delete this task?')) {
-        return $api.delete(`/tasks/${taskId}`).then(() => { 
+        $api.delete(`/tasks/${taskId}`).then(() => { 
             alert('Task deleted successfully'); 
-            return true;
-          }).catch(() => {
-            alert('Failed to delete task'); 
-            return false; 
-          });
+          }).catch(() => {alert('Failed to delete task'); });
       }
-      return Promise.resolve(false); // Return a resolved promise for consistency
     },
 
     editTask(taskId) {
@@ -87,38 +79,33 @@ export const useTaskStore = defineStore('useTaskStore', {
 
     // fetch a single task by its ID
     fetchTask(id) {
-      const { $api } = useNuxtApp();
-
-      return $api.get(`/tasks/${id}`)
-        .then((response) => response.data || { 
-          id: null,
-          title: '',
-          description: '',
-          priority: 1,
-          status: '',
-          due_date: '',
-          completeness_date: ''
-        }).catch(() => { 
-          alert('Failed to fetch task'); 
-          return null;
-        });
+        const { $api } = useNuxtApp();
+  
+        $api.get(`/tasks/${id}`)
+          .then((response) => response.data || { 
+            id: null,
+            title: '',
+            description: '',
+            priority: 1,
+            status: '',
+            due_date: '',
+            completeness_date: ''
+        }).catch(() => { alert('Failed to fetch task'); });
     },
 
     async saveTask(task) {
-      const { $api } = useNuxtApp();
-
-      const updatedTask = {
-        ...task,
-        due_date: task.due_date || null, // if due_date is not provided
-        completeness_date: task.completeness_date || null, // if completeness_date is not provided
-      };
-
-      return $api.put(`/tasks/${task.id}`, updatedTask).then(() => {
-          alert('Task updated successfully'); 
-          return true; 
-        }).catch(() => { 
-          alert('Failed to update task'); 
-          return false;
+        const { $api } = useNuxtApp();
+  
+        const updatedTask = {
+          ...task,
+          due_date: task.due_date || null, // if due_date is not provided
+          completeness_date: task.completeness_date || null, // if completeness_date is not provided
+        };
+  
+        $api.put(`/tasks/${task.id}`, updatedTask).then(() => {
+            alert('Task updated successfully'); 
+          }).catch(() => { 
+            alert('Failed to update task');
         });
     },
 

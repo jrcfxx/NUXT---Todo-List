@@ -89,20 +89,18 @@ const errors = ref({});
 const taskStore = useTaskStore(); 
 const router = useRouter();
 
-const handleSubmit = async () => {
-  const { success, errors: validationErrors } = await taskStore.submitTask(
+const handleSubmit = () => {
+  taskStore.submitTask(
     title.value,
     description.value,
     priority.value,
     status.value,
     due_date.value,
     completeness_date.value
-  );
-  if (success) {
-    router.push({ path: '/my-tasks' });
-  } else {
+  ).then(() => {router.push({ path: '/my-tasks' });
+  }).catch((validationErrors) => {
     errors.value = validationErrors;
-  }
+  });
 };
 </script>
 

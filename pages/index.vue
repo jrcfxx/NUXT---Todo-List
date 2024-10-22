@@ -67,7 +67,7 @@
   const {$api} = useNuxtApp()
   const router = useRouter()
   
-const handleLogin = async () => {
+const handleLogin = () => {
     isLoading.value = true;
 
     authStore.login(email.value, password.value).then(() => {

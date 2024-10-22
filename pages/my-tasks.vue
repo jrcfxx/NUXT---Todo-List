@@ -71,10 +71,8 @@ const loadTasks = async () => {
 };
 
 const handleDeleteTask = async (taskId) => {
-  const success = await taskStore.deleteTask(taskId);
-  if (success) {
-    loadTasks();
-  }
+  await taskStore.deleteTask(taskId);
+  loadTasks();
 };
 
 const handleEditTask = (taskId) => {

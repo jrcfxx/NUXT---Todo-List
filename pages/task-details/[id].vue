@@ -92,10 +92,8 @@ onMounted(() => {
 });
 
 const saveChanges = () => {
-  taskStore.saveTask(task.value).then((success) => {
-    if (success) {
-      router.push({ path: '/my-tasks' });
-    }
+  taskStore.saveTask(task.value).then(() => {
+    router.push({ path: '/my-tasks' });
   });
 };
 </script>
