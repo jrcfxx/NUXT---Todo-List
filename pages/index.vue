@@ -63,14 +63,14 @@
   let email=ref('')
   let password=ref('')
   let isLoading=ref(false)
-  const store = useAuthStore()
+  const authStore = useAuthStore()
   const {$api} = useNuxtApp()
   const router = useRouter()
   
 const handleLogin = async () => {
     isLoading.value = true;
 
-    store.login(email.value, password.value).then(() => {
+    authStore.login(email.value, password.value).then(() => {
         router.push('/tasks');
     }).catch(() => {alert('Login failed. Please check your credentials.');
     }).finally(() => {

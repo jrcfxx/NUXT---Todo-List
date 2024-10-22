@@ -72,59 +72,30 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '~/store/authStore';
+import { useTaskStore } from '~/store/taskStore';
 
-const task = ref(null); 
+const taskStore = useTaskStore();
+const task = ref(null);
 const errors = ref({});
-const store = useAuthStore();
-const {$api} = useNuxtApp();
-const router = useRouter();
 const route = useRoute();
-
-const fetchTask = (id) => {
-  
-  $api.get(`/tasks/${id}`).then((response) => {
-    task.value = response.data || {
-      id: null,
-      title: '',
-      description: '',
-      priority: 1,
-      status: '',
-      due_date: '',
-      completeness_date: ''
-    };
-
-    task.value.due_date = formatDateToInput(task.value.due_date);
-    task.value.completeness_date = formatDateToInput(task.value.completeness_date);
-  }).catch( () => {alert('Failed to fetch task');})
-
-
-
-
-  };
-
-const formatDateToInput = (dateString) => {
-  return dateString ? new Date(dateString).toISOString().split('T')[0] : '';
-};
-
-const saveChanges = async () => {
-  const updatedTask = {
-    ...task.value,
-    due_date: task.value.due_date || null,
-    completeness_date: task.value.completeness_date || null,
-  };
-
-  await $api.put(`/tasks/${task.value.id}`, updatedTask).then(() => {
-    alert('Task updated successfully');
-    router.push({ path: '/my-tasks' });
-  }).catch(() => {alert('Failed to update task');});
-};
-
+const router = useRouter();
 
 onMounted(() => {
   const taskId = route.params.id;
-  fetchTask(taskId);
+  taskStore.fetchTask(taskId).then((fetchedTask) => {
+    if (fetchedTask) {
+      fetchedTask.due_date = taskStore.formatDateToInput(fetchedTask.due_date);
+      fetchedTask.completeness_date = taskStore.formatDateToInput(fetchedTask.completeness_date);
+      task.value = fetchedTask;
+    }
+  });
 });
+
+const saveChanges = () => {
+  taskStore.saveTask(task.value).then((success) => {
+    if (success) {
+      router.push({ path: '/my-tasks' });
+    }
+  });
+};
 </script>
-
-

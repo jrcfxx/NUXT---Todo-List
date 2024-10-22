@@ -1,5 +1,4 @@
 <template>
-  <!-- Involves the entire application -->
   <v-app>
     <NavBar />
 
@@ -12,7 +11,7 @@
               <p class="text-subtitle-1 mb-4 text-secondary">Fill out the fields to create the tasks.</p>
             </div>
 
-            <v-form @submit.prevent="createTask">
+            <v-form @submit.prevent="handleSubmit">
               <v-text-field
                 v-model="title"
                 label="Title"
@@ -76,8 +75,8 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '~/store/authStore';
 import { ref } from 'vue';
+import { useTaskStore } from '~/store/taskStore';
 
 const title = ref('');
 const description = ref('');
@@ -87,46 +86,23 @@ const due_date = ref('');
 const completeness_date = ref('');
 const errors = ref({});
 
-const store = useAuthStore();
-const {$api} = useNuxtApp();
+const taskStore = useTaskStore(); 
 const router = useRouter();
-const validateDates = () => {
-  const today = new Date().toISOString().split('T')[0]; 
 
-  if (due_date.value && due_date.value < today) {
-    errors.value.due_date = ['The due date cannot be in the past.'];
-    return false;
-  }
-
-  if (completeness_date.value && completeness_date.value > today) {
-    errors.value.completeness_date = ['The completeness date cannot be in the future.'];
-    return false;
-  }
-
-  errors.value = {}; 
-  return true;
-};
-
-const createTask = () => {
-  if (!validateDates()) {
-    return; // Stop if validation fails
-  }
-
-  const taskData = {
-    title: title.value,
-    description: description.value,
-    priority: priority.value,
-    status: status.value,
-    due_date: due_date.value,
-  };
-
-  if (completeness_date.value) {
-    taskData.completeness_date = completeness_date.value;
-  }
-
-  $api.post('/tasks', taskData).then(() => {
+const handleSubmit = async () => {
+  const { success, errors: validationErrors } = await taskStore.submitTask(
+    title.value,
+    description.value,
+    priority.value,
+    status.value,
+    due_date.value,
+    completeness_date.value
+  );
+  if (success) {
     router.push({ path: '/my-tasks' });
-    }).catch(() => {alert('Task creation failed');});
+  } else {
+    errors.value = validationErrors;
+  }
 };
-
 </script>
+
