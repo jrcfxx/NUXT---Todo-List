@@ -1,5 +1,4 @@
 import { formatTimestamp } from '~/utils/dateUtils';
-import { convertToTimestamp } from '~/utils/dateUtils';
 import { validateCompletenessDate } from '~/utils/dateUtils';
 
 export const useTaskStore = defineStore('useTaskStore', {

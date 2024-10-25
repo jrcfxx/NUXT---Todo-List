@@ -73,7 +73,6 @@
 <script setup>
 import { useTaskStore } from '~/store/taskStore';
 import { formatTimestamp } from '~/utils/dateUtils';
-import { convertToTimestamp } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const route = useRoute();
