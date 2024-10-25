@@ -20,6 +20,18 @@ export function validateCompletenessDate(completeness_date) {
     return errors;
 }
 
+/**
+ * Formats a date string for display.
+ * 
+ * @param {string} dateString - The date string to format.
+ * @returns {string} - The formatted date string, or '-' if no date is provided.
+ */
+export const formatDate = (dateString) => {
+    if (!dateString) return '-'; 
+    const options = { year: 'numeric', month: 'short', day: 'numeric' }; 
+    return new Date(dateString).toLocaleDateString(undefined, options); 
+};
+
 export function formatTimestamp(timestamp) {
     const date = new Date(timestamp);
 

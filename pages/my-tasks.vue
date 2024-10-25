@@ -1,5 +1,5 @@
-<template> 
- <!-- Involves the entire application -->
+<template>  
+  <!-- Involves the entire application -->
   <v-app>
     <NavBar />
 
@@ -25,7 +25,7 @@
                   <th class="text-left" width="10%">Action</th>
                 </tr>
               </thead>
-              <tbody>              
+             <tbody>              
                 <!-- For each item in tasks, a new <tr> element will be generated -->
                 <tr v-for="task in tasks" :key="task.id">
                   <td>{{ task.id }}</td>
@@ -56,6 +56,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useTaskStore } from '~/store/taskStore';
+import { formatDate } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 
@@ -65,20 +66,6 @@ const taskStore = useTaskStore();
  * @returns {Array} - The list of tasks from the task store.
  */
 const tasks = computed(() => taskStore.tasks);
-
-
-/**
- * Function to format dates for display.
- * 
- * @param {string} dateString - The date string to format.
- * 
- * @returns {string} - The formatted date string, or '-' if no date is provided.
- */
-const formatDate = (dateString) => {
-  if (!dateString) return '-'; 
-  const options = { year: 'numeric', month: 'short', day: 'numeric' }; 
-  return new Date(dateString).toLocaleDateString(undefined, options); 
-};
 
 /**
  * Load tasks from the store.
@@ -100,7 +87,6 @@ const handleDeleteTask = async (taskId) => {
   await taskStore.deleteTask(taskId); // Delete the task using the store action
   loadTasks(); // Reload tasks after deletion
 };
-
 
 /**
  * Handle task editing.
