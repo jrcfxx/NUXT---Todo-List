@@ -10,7 +10,7 @@
               <p class="text-subtitle-1 mb-4 text-secondary">Edit the details of the task below.</p>
             </div>
 
-            <v-form @submit.prevent="saveChanges">
+            <v-form @submit.prevent="handleSaveChanges">
               <v-text-field
                 v-model="task.title"
                 label="Title"
@@ -62,7 +62,7 @@
         </v-row>
         <v-row v-else>
           <v-col>
-            <p>Loading task details...</p>
+            <p>{{ errors.fetch || 'Loading task details...' }}</p>
           </v-col>
         </v-row>
       </v-container>
@@ -71,29 +71,63 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useTaskStore } from '~/store/taskStore';
+import { formatTimestamp } from '~/utils/dateUtils';
+import { convertToTimestamp } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
-const task = ref(null);
-const errors = ref({});
 const route = useRoute();
 const router = useRouter();
 
+/**
+ * Computed property that retrieves the current task from the task store.
+ * 
+ * @returns {Object} - The current task object.
+ */
+const task = computed(() => taskStore.getTask);
+
+
+/**
+ * Computed property that retrieves error messages from the task store.
+ * 
+ * @returns {Object} - The object containing error messages for the form fields.
+ */
+const errors = computed(() => taskStore.getErrors);
+
+
+/**
+ * Runs when the component is mounted.
+ * It fetches the task details based on the ID from the route parameters.
+ */
 onMounted(() => {
   const taskId = route.params.id;
+
+  // Fetch the task and handle the response
   taskStore.fetchTask(taskId).then((fetchedTask) => {
     if (fetchedTask) {
-      fetchedTask.due_date = taskStore.formatDateToInput(fetchedTask.due_date);
-      fetchedTask.completeness_date = taskStore.formatDateToInput(fetchedTask.completeness_date);
-      task.value = fetchedTask;
+      // Format due_date and completeness_date before setting the task
+      taskStore.setTask({
+        ...fetchedTask,
+        due_date: formatTimestamp(fetchedTask.due_date),
+        completeness_date: fetchedTask.completeness_date ? formatTimestamp(fetchedTask.completeness_date) : null,
+      });
     }
+  }).catch(() => {
+    taskStore.setErrors({ fetch: 'Could not fetch task details.' });
   });
 });
 
-const saveChanges = () => {
+
+/**
+ * Saves the changes made to the task and navigates back to the my-tasks route.
+ * 
+ * @returns {void}
+ */
+const handleSaveChanges = () => {
   taskStore.saveTask(task.value).then(() => {
     router.push({ path: '/my-tasks' });
+  }).catch((validationErrors) => {
+    taskStore.setErrors(validationErrors.errors || {});
   });
 };
 </script>

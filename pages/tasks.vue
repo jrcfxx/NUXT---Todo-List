@@ -75,8 +75,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useTaskStore } from '~/store/taskStore';
+
+const taskStore = useTaskStore();
+const router = useRouter();
 
 const title = ref('');
 const description = ref('');
@@ -84,11 +86,20 @@ const priority = ref(1);
 const status = ref('Open');
 const due_date = ref('');
 const completeness_date = ref('');
-const errors = ref({});
 
-const taskStore = useTaskStore(); 
-const router = useRouter();
+/**
+ * Computed property to access error messages from the task store.
+ * 
+ * @returns {Object} - The object containing error messages for the form fields.
+ */
+const errors = computed(() => taskStore.getErrors); 
 
+
+/**
+ * Submits the task creation form, validating input and sending data to the store.
+ * 
+ * @returns {void}
+ */
 const handleSubmit = () => {
   taskStore.submitTask(
     title.value,
@@ -99,7 +110,7 @@ const handleSubmit = () => {
     completeness_date.value
   ).then(() => {router.push({ path: '/my-tasks' });
   }).catch((validationErrors) => {
-    errors.value = validationErrors;
+    taskStore.setErrors(validationErrors.errors || {}); // Set validation errors in the store
   });
 };
 </script>

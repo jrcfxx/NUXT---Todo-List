@@ -54,30 +54,65 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'; 
-import { useTaskStore } from '~/store/taskStore'; 
+import { computed, onMounted } from 'vue';
+import { useTaskStore } from '~/store/taskStore';
 
-const tasks = ref([]); 
-const taskStore = useTaskStore(); 
+const taskStore = useTaskStore();
 
+/**
+ * Computed property to get tasks from the store.
+ * 
+ * @returns {Array} - The list of tasks from the task store.
+ */
+const tasks = computed(() => taskStore.tasks);
+
+
+/**
+ * Function to format dates for display.
+ * 
+ * @param {string} dateString - The date string to format.
+ * 
+ * @returns {string} - The formatted date string, or '-' if no date is provided.
+ */
 const formatDate = (dateString) => {
   if (!dateString) return '-'; 
   const options = { year: 'numeric', month: 'short', day: 'numeric' }; 
   return new Date(dateString).toLocaleDateString(undefined, options); 
 };
 
-const loadTasks = async () => {
-  tasks.value = await taskStore.fetchTasks(); 
+/**
+ * Load tasks from the store.
+ * 
+ * @returns {void}
+ */
+const loadTasks = () => {
+  taskStore.fetchTasks(); // Fetch tasks and store them in the state
 };
 
+/**
+ * Handle task deletion.
+ * 
+ * @param {number} taskId - The ID of the task to delete.
+ * 
+ * @returns {void}
+ */
 const handleDeleteTask = async (taskId) => {
-  await taskStore.deleteTask(taskId);
-  loadTasks();
+  await taskStore.deleteTask(taskId); // Delete the task using the store action
+  loadTasks(); // Reload tasks after deletion
 };
 
+
+/**
+ * Handle task editing.
+ * 
+ * @param {number} taskId - The ID of the task to edit.
+ * 
+ * @returns {void}
+ */
 const handleEditTask = (taskId) => {
   taskStore.editTask(taskId);
 };
 
+// Load tasks when the component is mounted
 onMounted(loadTasks);
 </script>
