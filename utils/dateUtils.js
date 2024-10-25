@@ -1,23 +1,27 @@
 import { useTaskStore } from '~/store/taskStore';
 
-// Function to validate due and completeness dates
+/**
+ * Validates the completeness date to ensure it is not set in the future.
+ *
+ * @param {string} completeness_date - The completion date to validate.
+ * @returns {string|null} - Returns an error message if the date is in the future, otherwise null.
+ */
 export function validateCompletenessDate(completeness_date) {
     // Get today's date
     const today = new Date(); 
-    const errors = {}; // Object to store validation error messages
+    let error = null;
 
     // Check if the completeness date is provided and if it is in the future
     if (completeness_date && new Date(completeness_date) > today.setHours(0, 0, 0, 0)) {
-        //  add an error message to the errors object
-        errors.completeness_date = ['The completeness date cannot be in the future.'];
+        error = 'The completeness date cannot be in the future.';
     }
 
     const taskStore = useTaskStore();
 
     // Set the errors in the task store state
-    taskStore.setErrors(errors);
+    taskStore.setError(error);
 
-    return errors;
+    return error;
 }
 
 /**

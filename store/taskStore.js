@@ -1,5 +1,4 @@
-import { formatTimestamp } from '~/utils/dateUtils';
-import { validateCompletenessDate } from '~/utils/dateUtils';
+import { formatTimestamp, validateCompletenessDate } from '~/utils/dateUtils';
 
 export const useTaskStore = defineStore('useTaskStore', {
     state: () => ({
@@ -93,26 +92,26 @@ export const useTaskStore = defineStore('useTaskStore', {
          */
         submitTask(title, description, priority, status, due_date, completeness_date) {
             return new Promise((resolve, reject) => {
-                const validationErrors = validateCompletenessDate(completeness_date);
-                
-                if (Object.keys(validationErrors).length) {
-                  reject({ errors: validationErrors }); // Reject with validation errors
+                const validationError = validateCompletenessDate(completeness_date);
+
+                if (validationError) { 
+                    reject({ error: validationError }); 
                 } else {
-                  const taskData = {
-                    title,
-                    description,
-                    priority,
-                    status,
-                    due_date,
-                    completeness_date: completeness_date || null,
-                  };
-        
-                  this.createTask(taskData)
+                    const taskData = {
+                        title,
+                        description,
+                        priority,
+                        status,
+                        due_date,
+                        completeness_date: completeness_date || null,
+                    };
+
+                    this.createTask(taskData)
                     .then(() => resolve()) // Resolve if task creation is successful
                     .catch(() => reject({ errors: { submit: 'Task creation failed' } })); // Reject if task creation fails
                 }
             });
-         },
+        },
   
         /**
          * Fetches all tasks from the API.
