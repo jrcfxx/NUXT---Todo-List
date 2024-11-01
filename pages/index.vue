@@ -70,9 +70,12 @@
 const handleLogin = () => {
     isLoading.value = true;
 
-    authStore.login(email.value, password.value).then(() => {
-        router.push('/tasks');
-    }).catch(() => {alert('Login failed. Please check your credentials.');
+    authStore.login(email.value, password.value)
+    .then(() => {
+      router.push('/tasks');
+    })
+    .catch(() => {
+      alert('Login failed. Please check your credentials.');
     }).finally(() => {
         isLoading.value = false;
     });

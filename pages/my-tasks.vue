@@ -25,16 +25,15 @@
                   <th class="text-left" width="10%">Action</th>
                 </tr>
               </thead>
-             <tbody>              
-                <!-- For each item in tasks, a new <tr> element will be generated -->
-                <tr v-for="task in tasks" :key="task.id">
+              <tbody>              
+                <tr v-for="task in taskStore.tasks" :key="task.id">
                   <td>{{ task.id }}</td>
                   <td>{{ task.title }}</td>
                   <td>{{ task.description }}</td>
                   <td>{{ task.priority }}</td>
                   <td>{{ task.status }}</td>
-                  <td>{{ formatDate(task.due_date) }}</td>
-                  <td>{{ formatDate(task.completeness_date) }}</td>
+                  <td>{{ task.due_date }}</td>
+                  <td>{{ task.completeness_date }}</td>
                   <td class="d-flex">
                     <v-btn class="mx-1" icon @click="handleEditTask(task.id)">
                       <v-icon color="green">mdi-pencil</v-icon>
@@ -54,27 +53,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
 import { useTaskStore } from '~/store/taskStore';
-import { formatDate } from '~/utils/dateUtils';
 
+const route = useRoute();
+const router = useRouter();
 const taskStore = useTaskStore();
 
-/**
- * Computed property to get tasks from the store.
- * 
- * @returns {Array} - The list of tasks from the task store.
- */
-const tasks = computed(() => taskStore.tasks);
-
-/**
- * Load tasks from the store.
- * 
- * @returns {void}
- */
-const loadTasks = () => {
-  taskStore.fetchTasks(); // Fetch tasks and store them in the state
-};
+// Load tasks when the component is mounted
+onMounted(() => {
+  taskStore.fetchTasks();
+});
 
 /**
  * Handle task deletion.
@@ -84,21 +72,18 @@ const loadTasks = () => {
  * @returns {void}
  */
 const handleDeleteTask = async (taskId) => {
-  await taskStore.deleteTask(taskId); // Delete the task using the store action
-  loadTasks(); // Reload tasks after deletion
+  await taskStore.deleteTask(taskId);
+  taskStore.fetchTasks();
 };
 
 /**
- * Handle task editing.
+ * Handle task editing by redirecting to the edit page.
  * 
  * @param {number} taskId - The ID of the task to edit.
  * 
  * @returns {void}
  */
 const handleEditTask = (taskId) => {
-  taskStore.editTask(taskId);
+  router.push({ path: `/task-details/${taskId}` });
 };
-
-// Load tasks when the component is mounted
-onMounted(loadTasks);
 </script>

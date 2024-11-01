@@ -3,7 +3,7 @@
     <NavBar />
     <v-main>
       <v-container id="task-details" class="mt-12">
-        <v-row v-if="task && task.id">
+        <v-row>
           <v-col cols="12" md="8">
             <div>
               <h2 class="text-h4 mb-3 text-primary">Task Details</h2>
@@ -12,20 +12,18 @@
 
             <v-form @submit.prevent="handleSaveChanges">
               <v-text-field
-                v-model="task.title"
+                v-model="taskTitle"
                 label="Title"
                 placeholder="The title of the task"
-                :error-messages="errors.title"
               ></v-text-field>
 
               <v-textarea
-                v-model="task.description"
+                v-model="taskDescription"
                 label="Description"
                 placeholder="Enter the description of the task"
-                :error-messages="errors.description"
               ></v-textarea>
 
-              <v-radio-group v-model="task.priority" row>
+              <v-radio-group v-model="taskPriority" row>
                 <label class="text-body-1 mb-2 font-weight-bold text-primary">Priority</label>
                 <v-radio label="1" :value="1"></v-radio>
                 <v-radio label="2" :value="2"></v-radio>
@@ -36,33 +34,26 @@
               </v-radio-group>
 
               <v-select
-                v-model="task.status"
+                v-model="taskStatus"
                 :items="['Open', 'In Progress', 'Review', 'Hold', 'Closed']"
                 label="Status"
-                :error-messages="errors.status"
               ></v-select>
 
               <v-text-field
-                v-model="task.due_date"
+                v-model="taskDueDate"
                 label="Due Date"
                 type="date"
-                :error-messages="errors.due_date"
               ></v-text-field>
 
               <v-text-field
-                v-model="task.completeness_date"
+                v-model="taskCompletenessDate"
                 label="Completeness Date"
                 type="date"
-                :error-messages="errors.completeness_date"
+                :max="today"
               ></v-text-field>
 
               <v-btn color="primary" dark type="submit" block>Save Changes</v-btn>
             </v-form>
-          </v-col>
-        </v-row>
-        <v-row v-else>
-          <v-col>
-            <p>{{ errors.fetch || 'Loading task details...' }}</p>
           </v-col>
         </v-row>
       </v-container>
@@ -72,61 +63,59 @@
 
 <script setup>
 import { useTaskStore } from '~/store/taskStore';
-import { formatTimestamp } from '~/utils/dateUtils';
+import { today } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const route = useRoute();
 const router = useRouter();
 
-/**
- * Computed property that retrieves the current task from the task store.
- * 
- * @returns {Object} - The current task object.
- */
-const task = computed(() => taskStore.getTask);
-
-
-/**
- * Computed property that retrieves error messages from the task store.
- * 
- * @returns {Object} - The object containing error messages for the form fields.
- */
-const errors = computed(() => taskStore.getErrors);
-
-
-/**
- * Runs when the component is mounted.
- * It fetches the task details based on the ID from the route parameters.
- */
-onMounted(() => {
-  const taskId = route.params.id;
-
-  // Fetch the task and handle the response
-  taskStore.fetchTask(taskId).then((fetchedTask) => {
-    if (fetchedTask) {
-      // Format due_date and completeness_date before setting the task
-      taskStore.setTask({
-        ...fetchedTask,
-        due_date: formatTimestamp(fetchedTask.due_date),
-        completeness_date: fetchedTask.completeness_date ? formatTimestamp(fetchedTask.completeness_date) : null,
-      });
-    }
-  }).catch(() => {
-    taskStore.setErrors({ fetch: 'Could not fetch task details.' });
-  });
+const taskTitle = computed({
+  get: () => taskStore.getTaskTitle,
+  set: (value) => taskStore.setTaskTitle(value),
 });
 
+const taskDescription = computed({
+  get: () => taskStore.getTaskDescription,
+  set: (value) => taskStore.setTaskDescription(value),
+});
+
+const taskPriority = computed({
+  get: () => taskStore.getTaskPriority,
+  set: (value) => taskStore.setTaskPriority(value),
+});
+
+const taskStatus = computed({
+  get: () => taskStore.getTaskStatus,
+  set: (value) => taskStore.setTaskStatus(value),
+});
+
+const taskDueDate = computed({
+  get: () => taskStore.getTaskDueDate,
+  set: (value) => taskStore.setTaskDueDate(value),
+});
+
+const taskCompletenessDate = computed({
+  get: () => taskStore.getTaskCompletenessDate,
+  set: (value) => taskStore.setTaskCompletenessDate(value),
+});
+
+// Fetch task details when the component is mounted
+onMounted( () => {
+  const taskId = route.params.id;
+  taskStore.fetchTask(taskId);
+});
 
 /**
- * Saves the changes made to the task and navigates back to the my-tasks route.
+ * Handle saving changes made in the task.
  * 
  * @returns {void}
  */
 const handleSaveChanges = () => {
-  taskStore.saveTask(task.value).then(() => {
-    router.push({ path: '/my-tasks' });
-  }).catch((validationErrors) => {
-    taskStore.setErrors(validationErrors.errors || {});
-  });
+  const taskId = route.params.id;
+
+  taskStore.saveChanges(taskId)
+    .then(() => {
+      router.push({ path: '/my-tasks' });
+    })
 };
 </script>
