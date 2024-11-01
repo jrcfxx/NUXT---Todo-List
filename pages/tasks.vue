@@ -114,6 +114,15 @@ const taskCompletenessDate = computed({
  * @returns {void}
  */
 const handleSubmit = () => {
+  if (!taskTitle.value) {
+    alert('The field "Title" must be filled.');
+    return;
+  }
+  if (!taskDescription.value) {
+    alert('The field "Description" must be filled.');
+    return;
+  }
+
   taskStore.createTask()
 };
 

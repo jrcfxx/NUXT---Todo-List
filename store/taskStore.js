@@ -12,7 +12,6 @@ export const useTaskStore = defineStore('useTaskStore', {
             completeness_date: null,
         },
 
-        errors: {},
       }),
   
     getters: {
@@ -61,27 +60,6 @@ export const useTaskStore = defineStore('useTaskStore', {
         setTasks(tasks) {
             this.tasks = tasks;
         },
-
-        /**
-         * Validates required fields before creating a task.
-         * 
-         * @returns {boolean} - Returns true if validation passes; otherwise, false.
-         */
-        validateFields() {
-            this.errors = {}; // Reset errors
-
-            if (!this.task.title) {
-                this.errors.title = 'The field "Title" must be filled.';
-                alert('The field "Title" must be filled.');
-            }
-            if (!this.task.description) {
-                this.errors.description = 'The field "Description" must be filled.';
-                alert('The field "Description" must be filled.');
-            }
-
-            // Return true if no errors, otherwise false
-            return Object.keys(this.errors).length === 0; 
-        },
   
         /**
          * Creates a new task by sending data to the API.
@@ -90,12 +68,6 @@ export const useTaskStore = defineStore('useTaskStore', {
          */
         createTask() {
             const { $api } = useNuxtApp();
-
-            // Validate fields before proceeding
-            const isValid = this.validateFields();
-            if (!isValid) {
-                return;
-            }
 
             const taskData = {
                 title: this.task.title,
@@ -107,7 +79,7 @@ export const useTaskStore = defineStore('useTaskStore', {
             };
 
             return $api.post('/tasks', taskData)
-            .then((response) => {
+            .then(() => {
                 alert('Task created successfully.'); 
             })
             .catch(() => { 
