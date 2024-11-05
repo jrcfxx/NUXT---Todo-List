@@ -115,22 +115,22 @@ export const useTaskStore = defineStore('useTaskStore', {
         
             // Fetch a task by ID
             return $api.get(`/tasks/${taskId}`)
-                .then((response) => {
-                    const fetchedTask = response.data;
-        
-                    this.task = {
-                        id: fetchedTask.id,
-                        title: fetchedTask.title,
-                        description: fetchedTask.description,
-                        priority: fetchedTask.priority,
-                        status: fetchedTask.status,
-                        due_date: fetchedTask.due_date,
-                        completeness_date: fetchedTask.completeness_date || null,
-                    };
-                })
-                .catch(() => {
-                    alert('Failed to fetch task.'); 
-                });
+            .then((response) => {
+                const fetchedTask = response.data;
+    
+                this.task = {
+                    id: fetchedTask.id,
+                    title: fetchedTask.title,
+                    description: fetchedTask.description,
+                    priority: fetchedTask.priority,
+                    status: fetchedTask.status,
+                    due_date: fetchedTask.due_date,
+                    completeness_date: fetchedTask.completeness_date || null,
+                };
+            })
+            .catch(() => {
+                alert('Failed to fetch task.'); 
+            });
         },
   
         /**

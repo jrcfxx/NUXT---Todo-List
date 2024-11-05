@@ -21,22 +21,21 @@ export function validateCompletenessDate(completeness_date) {
 }
 
 /**
- * Formats a date string for display.
- * 
- * @param {string} dateString - The date string to format.
- * @returns {string} - The formatted date string, or '-' if no date is provided.
+ * Formats a date string into 'yyyy-MM-dd' format, or returns '-' if no date is provided.
+ *
+ * @param {string} myDate - The date string to format.
+ * @returns {string} - The formatted date string in 'yyyy-MM-dd' format or '-' if the input is invalid.
  */
-export const formatDate = (dateString) => {
-    if (!dateString) return '-';
+export function formatDateToYYYYMMDD(myDate) {
+    const date = new Date(myDate);
 
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    if (!myDate) return '-';
 
-    return new Date(dateString).toLocaleDateString(undefined, options);
-}
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
 
-export const formatDateToYYYYMMDD = (dateString) => {
-    const parts = dateString.split('-'); 
-    return `${parts[2]}-${parts[1]}-${parts[0]}`; 
+    return `${year}-${month}-${day}`;
 }
 
 /**
@@ -55,6 +54,11 @@ export function formatTimestamp(timestamp) {
     return `${year}-${month}-${day}`; 
 }
 
+/**
+ * Computes today's date in 'yyyy-MM-dd' format.
+ * 
+ * @returns {string} - The current date in 'yyyy-MM-dd' format.
+ */
 export const today = computed(() => {
     return new Date().toLocaleDateString('en-CA');
 });

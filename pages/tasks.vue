@@ -74,6 +74,7 @@
 <script setup>
 import { useTaskStore } from '~/store/taskStore';
 import { today } from '~/utils/dateUtils';
+import { formatDateToYYYYMMDD } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const router = useRouter();

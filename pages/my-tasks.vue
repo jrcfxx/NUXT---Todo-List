@@ -32,8 +32,8 @@
                   <td>{{ task.description }}</td>
                   <td>{{ task.priority }}</td>
                   <td>{{ task.status }}</td>
-                  <td>{{ task.due_date }}</td>
-                  <td>{{ task.completeness_date }}</td>
+                  <td>{{ formatDateToYYYYMMDD(task.due_date) }}</td>
+                  <td>{{ formatDateToYYYYMMDD(task.completeness_date) }}</td>
                   <td class="d-flex">
                     <v-btn class="mx-1" icon @click="handleEditTask(task.id)">
                       <v-icon color="green">mdi-pencil</v-icon>

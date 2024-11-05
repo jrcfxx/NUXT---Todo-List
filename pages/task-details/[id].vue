@@ -64,6 +64,7 @@
 <script setup>
 import { useTaskStore } from '~/store/taskStore';
 import { today } from '~/utils/dateUtils';
+import { formatDateToYYYYMMDD } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const route = useRoute();
@@ -90,12 +91,12 @@ const taskStatus = computed({
 });
 
 const taskDueDate = computed({
-  get: () => taskStore.getTaskDueDate,
+  get: () => formatDateToYYYYMMDD(taskStore.getTaskDueDate),
   set: (value) => taskStore.setTaskDueDate(value),
 });
 
 const taskCompletenessDate = computed({
-  get: () => taskStore.getTaskCompletenessDate,
+  get: () => taskStore.getTaskCompletenessDate ? formatDateToYYYYMMDD(taskStore.getTaskCompletenessDate) : '',
   set: (value) => taskStore.setTaskCompletenessDate(value),
 });
 
