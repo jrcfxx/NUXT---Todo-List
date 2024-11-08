@@ -39,19 +39,29 @@ export function formatDateToYYYYMMDD(myDate) {
 }
 
 /**
- * Converts a timestamp to a formatted date string.
- * 
- * @param {number} timestamp - The timestamp to convert.
- * @returns {string} - The formatted date string in 'yyyy-MM-dd' format.
+ * Converts a date string from 'yyyy-MM-dd' format to MySQL 'datetime' format.
+ *
+ * @param {string} dateStr - The date string in 'yyyy-MM-dd' format.
+ * @returns {string|null} - The formatted date string in 'yyyy-MM-dd hh:mm:ss' format for MySQL, or null if the input is invalid.
  */
-export function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
+export function formatToDatetime(date) {
+    if (!date) return null;
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // Convert the string to a Date object
+    const newDate = new Date(date);
 
-    return `${year}-${month}-${day}`; 
+    // Get current hours, minutes, and seconds
+    const currentDate = new Date();
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    const seconds = String(currentDate.getSeconds()).padStart(2, '0');
+
+    // Format date and time components
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const day = String(newDate.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 /**
