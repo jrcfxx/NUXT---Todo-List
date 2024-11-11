@@ -1,5 +1,4 @@
 <template>
-  <!-- Involves the entire application -->
   <v-app>
     <NavBar />
 
@@ -12,24 +11,22 @@
               <p class="text-subtitle-1 mb-4 text-secondary">Fill out the fields to create the tasks.</p>
             </div>
 
-            <v-form @submit.prevent="createTask">
+            <v-form @submit.prevent="handleSubmit">
               <v-text-field
-                v-model="title"
+                v-model="taskTitle"
                 label="Title"
                 placeholder="The title of the task"
-                :error-messages="errors.title"
                 required
               ></v-text-field>
 
               <v-textarea
-                v-model="description"
+                v-model="taskDescription"
                 label="Description"
                 placeholder="Enter the description of the task"
-                :error-messages="errors.description"
                 required
               ></v-textarea>
 
-              <v-radio-group v-model="priority" row>
+              <v-radio-group v-model="taskPriority" row>
                 <label class="text-body-1 mb-2 font-weight-bold text-primary">Priority</label>
                 <v-radio label="1" :value="1"></v-radio>
                 <v-radio label="2" :value="2"></v-radio>
@@ -40,29 +37,28 @@
               </v-radio-group>
 
               <v-select
-                v-model="status"
+                v-model="taskStatus"
                 :items="['Open', 'In Progress', 'Review', 'Hold', 'Closed']"
                 label="Status"
-                :error-messages="errors.status"
                 required
               ></v-select>
 
               <v-text-field
-                v-model="due_date"
+                v-model="taskDueDate"
                 label="Due Date"
                 type="date"
-                :error-messages="errors.due_date"
                 required
               ></v-text-field>
 
               <v-text-field
-                v-model="completeness_date"
+                v-model="taskCompletenessDate"
                 label="Completeness Date"
                 type="date"
-                :error-messages="errors.completeness_date"
+                :max="today"
               ></v-text-field>
 
               <v-btn color="primary" dark type="submit" block>Submit</v-btn>
+              <v-btn color="primary" dark @click="clearFields" block style="margin-top: 16px;">Clear fields</v-btn>
             </v-form>
           </v-col>
 
@@ -76,57 +72,68 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '~/store/authStore';
-import { ref } from 'vue';
+import { useTaskStore } from '~/store/taskStore';
+import { formatDateToYYYYMMDD, formatToDatetime, today } from '~/utils/dateUtils';
 
-const title = ref('');
-const description = ref('');
-const priority = ref(1);
-const status = ref('Open');
-const due_date = ref('');
-const completeness_date = ref('');
-const errors = ref({});
 
-const store = useAuthStore();
-const {$api} = useNuxtApp();
+const taskStore = useTaskStore();
 const router = useRouter();
-const validateDates = () => {
-  const today = new Date().toISOString().split('T')[0]; 
 
-  if (due_date.value && due_date.value < today) {
-    errors.value.due_date = ['The due date cannot be in the past.'];
-    return false;
+const taskTitle = computed({
+  get: () => taskStore.getTaskTitle,
+  set: (value) => taskStore.setTaskTitle(value),
+});
+
+const taskDescription = computed({
+  get: () => taskStore.getTaskDescription,
+  set: (value) => taskStore.setTaskDescription(value),
+});
+
+const taskPriority = computed({
+  get: () => taskStore.getTaskPriority,
+  set: (value) => taskStore.setTaskPriority(value),
+});
+
+const taskStatus = computed({
+  get: () => taskStore.getTaskStatus,
+  set: (value) => taskStore.setTaskStatus(value),
+});
+
+const taskDueDate = computed({
+  get: () => formatDateToYYYYMMDD(taskStore.getTaskDueDate),
+  set: (value) => taskStore.setTaskDueDate(formatToDatetime(value)),
+});
+
+const taskCompletenessDate = computed({
+  get: () => taskStore.getTaskCompletenessDate ? formatDateToYYYYMMDD(taskStore.getTaskCompletenessDate) : '',
+  set: (value) => taskStore.setTaskCompletenessDate(value ? formatToDatetime(value) : null),
+});
+
+/**
+ * Handles the form submission and creates a new task.
+ * 
+ * @returns {void}
+ */
+const handleSubmit = () => {
+  if (!taskTitle.value) {
+    alert('The field "Title" must be filled.');
+    return;
+  }
+  if (!taskDescription.value) {
+    alert('The field "Description" must be filled.');
+    return;
   }
 
-  if (completeness_date.value && completeness_date.value > today) {
-    errors.value.completeness_date = ['The completeness date cannot be in the future.'];
-    return false;
-  }
-
-  errors.value = {}; 
-  return true;
+  taskStore.createTask()
 };
 
-const createTask = () => {
-  if (!validateDates()) {
-    return; // Stop if validation fails
-  }
-
-  const taskData = {
-    title: title.value,
-    description: description.value,
-    priority: priority.value,
-    status: status.value,
-    due_date: due_date.value,
-  };
-
-  if (completeness_date.value) {
-    taskData.completeness_date = completeness_date.value;
-  }
-
-  $api.post('/tasks', taskData).then(() => {
-    router.push({ path: '/my-tasks' });
-    }).catch(() => {alert('Task creation failed');});
+// Function to clear the form fields
+const clearFields = () => {
+  taskTitle.value = '';
+  taskDescription.value = '';
+  taskPriority.value = '';
+  taskStatus.value = '';
+  taskDueDate.value = '';
+  taskCompletenessDate.value = '';
 };
-
 </script>

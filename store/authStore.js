@@ -45,14 +45,17 @@ export const useAuthStore = defineStore('useAuthStore', {
     async login(email, password) {
       const { $api } = useNuxtApp();
 
-      await $api.post('/login', { email, password }).then(
+      return await $api.post('/login', { email, password }).then(
         async (response) => {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           // retrieve user information
           await this.getUserInfo();
         }
-      }).catch(() => alert('Login failed'));
+      }).catch((error) => {
+        throw error;
+      }
+      );
     },
 
     async logout() {

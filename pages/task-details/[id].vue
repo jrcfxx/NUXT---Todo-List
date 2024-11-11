@@ -3,29 +3,27 @@
     <NavBar />
     <v-main>
       <v-container id="task-details" class="mt-12">
-        <v-row v-if="task && task.id">
+        <v-row>
           <v-col cols="12" md="8">
             <div>
               <h2 class="text-h4 mb-3 text-primary">Task Details</h2>
               <p class="text-subtitle-1 mb-4 text-secondary">Edit the details of the task below.</p>
             </div>
 
-            <v-form @submit.prevent="saveChanges">
+            <v-form @submit.prevent="handleSaveChanges">
               <v-text-field
-                v-model="task.title"
+                v-model="taskTitle"
                 label="Title"
                 placeholder="The title of the task"
-                :error-messages="errors.title"
               ></v-text-field>
 
               <v-textarea
-                v-model="task.description"
+                v-model="taskDescription"
                 label="Description"
                 placeholder="Enter the description of the task"
-                :error-messages="errors.description"
               ></v-textarea>
 
-              <v-radio-group v-model="task.priority" row>
+              <v-radio-group v-model="taskPriority" row>
                 <label class="text-body-1 mb-2 font-weight-bold text-primary">Priority</label>
                 <v-radio label="1" :value="1"></v-radio>
                 <v-radio label="2" :value="2"></v-radio>
@@ -36,33 +34,26 @@
               </v-radio-group>
 
               <v-select
-                v-model="task.status"
+                v-model="taskStatus"
                 :items="['Open', 'In Progress', 'Review', 'Hold', 'Closed']"
                 label="Status"
-                :error-messages="errors.status"
               ></v-select>
 
               <v-text-field
-                v-model="task.due_date"
+                v-model="taskDueDate"
                 label="Due Date"
                 type="date"
-                :error-messages="errors.due_date"
               ></v-text-field>
 
               <v-text-field
-                v-model="task.completeness_date"
+                v-model="taskCompletenessDate"
                 label="Completeness Date"
                 type="date"
-                :error-messages="errors.completeness_date"
+                :max="today"
               ></v-text-field>
 
               <v-btn color="primary" dark type="submit" block>Save Changes</v-btn>
             </v-form>
-          </v-col>
-        </v-row>
-        <v-row v-else>
-          <v-col>
-            <p>Loading task details...</p>
           </v-col>
         </v-row>
       </v-container>
@@ -71,60 +62,60 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '~/store/authStore';
+import { useTaskStore } from '~/store/taskStore';
+import { formatDateToYYYYMMDD, formatToDatetime, today } from '~/utils/dateUtils';
 
-const task = ref(null); 
-const errors = ref({});
-const store = useAuthStore();
-const {$api} = useNuxtApp();
-const router = useRouter();
+const taskStore = useTaskStore();
 const route = useRoute();
+const router = useRouter();
 
-const fetchTask = (id) => {
-  
-  $api.get(`/tasks/${id}`).then((response) => {
-    task.value = response.data || {
-      id: null,
-      title: '',
-      description: '',
-      priority: 1,
-      status: '',
-      due_date: '',
-      completeness_date: ''
-    };
-
-    task.value.due_date = formatDateToInput(task.value.due_date);
-    task.value.completeness_date = formatDateToInput(task.value.completeness_date);
-  }).catch( () => {alert('Failed to fetch task');})
-
-
-
-
-  };
-
-const formatDateToInput = (dateString) => {
-  return dateString ? new Date(dateString).toISOString().split('T')[0] : '';
-};
-
-const saveChanges = async () => {
-  const updatedTask = {
-    ...task.value,
-    due_date: task.value.due_date || null,
-    completeness_date: task.value.completeness_date || null,
-  };
-
-  await $api.put(`/tasks/${task.value.id}`, updatedTask).then(() => {
-    alert('Task updated successfully');
-    router.push({ path: '/my-tasks' });
-  }).catch(() => {alert('Failed to update task');});
-};
-
-
-onMounted(() => {
-  const taskId = route.params.id;
-  fetchTask(taskId);
+const taskTitle = computed({
+  get: () => taskStore.getTaskTitle,
+  set: (value) => taskStore.setTaskTitle(value),
 });
+
+const taskDescription = computed({
+  get: () => taskStore.getTaskDescription,
+  set: (value) => taskStore.setTaskDescription(value),
+});
+
+const taskPriority = computed({
+  get: () => taskStore.getTaskPriority,
+  set: (value) => taskStore.setTaskPriority(value),
+});
+
+const taskStatus = computed({
+  get: () => taskStore.getTaskStatus,
+  set: (value) => taskStore.setTaskStatus(value),
+});
+
+const taskDueDate = computed({
+  get: () => formatDateToYYYYMMDD(taskStore.getTaskDueDate),
+  set: (value) => taskStore.setTaskDueDate(formatToDatetime(value)),
+});
+
+const taskCompletenessDate = computed({
+  get: () => taskStore.getTaskCompletenessDate ? formatDateToYYYYMMDD(taskStore.getTaskCompletenessDate) : '',
+  set: (value) => taskStore.setTaskCompletenessDate(value ? formatToDatetime(value) : null),
+});
+
+// Fetch task details when the component is mounted
+onMounted( () => {
+  const taskId = route.params.id;
+  taskStore.fetchTask(taskId);
+});
+
+/**
+ * Handle saving changes made in the task.
+ * 
+ * @returns {void}
+ */
+const handleSaveChanges = () => {
+  const taskId = route.params.id;
+
+  taskStore.saveChanges(taskId)
+    .then(() => {
+      router.push({ path: '/my-tasks' });
+    })
+};
 </script>
-
-
