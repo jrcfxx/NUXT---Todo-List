@@ -34,15 +34,17 @@ export function formatToDatetime(myDate) {
     const [year, month, day] = myDate.split('-');
     const newDate = new Date(year, month - 1, day); // month - 1 because months are 0-indexed
 
-    // Use the local time to set hours, minutes, and seconds
-    const localYear = newDate.getFullYear();
+    // Get the current time (now) and extract hours, minutes, and seconds
+    const now = new Date();
+    const localHours = String(now.getHours()).padStart(2, '0');
+    const localMinutes = String(now.getMinutes()).padStart(2, '0');
+    const localSeconds = String(now.getSeconds()).padStart(2, '0');
+
+    // Use the parsed date and append the current time
     const localMonth = String(newDate.getMonth() + 1).padStart(2, '0');
     const localDay = String(newDate.getDate()).padStart(2, '0');
-    const localHours = String(newDate.getHours()).padStart(2, '0');
-    const localMinutes = String(newDate.getMinutes()).padStart(2, '0');
-    const localSeconds = String(newDate.getSeconds()).padStart(2, '0');
 
-    return `${localYear}-${localMonth}-${localDay} ${localHours}:${localMinutes}:${localSeconds}`;
+    return `${year}-${localMonth}-${localDay} ${localHours}:${localMinutes}:${localSeconds}`;
 }
 
 /**
