@@ -65,6 +65,7 @@
 import { useTaskStore } from '~/store/taskStore';
 import { today } from '~/utils/dateUtils';
 import { formatDateToYYYYMMDD } from '~/utils/dateUtils';
+import { formatToDatetime } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const route = useRoute();
@@ -92,12 +93,12 @@ const taskStatus = computed({
 
 const taskDueDate = computed({
   get: () => formatDateToYYYYMMDD(taskStore.getTaskDueDate),
-  set: (value) => taskStore.setTaskDueDate(value),
+  set: (value) => taskStore.setTaskDueDate(formatToDatetime(value)),
 });
 
 const taskCompletenessDate = computed({
   get: () => taskStore.getTaskCompletenessDate ? formatDateToYYYYMMDD(taskStore.getTaskCompletenessDate) : '',
-  set: (value) => taskStore.setTaskCompletenessDate(value),
+  set: (value) => taskStore.setTaskCompletenessDate(value ? formatToDatetime(value) : null),
 });
 
 // Fetch task details when the component is mounted
