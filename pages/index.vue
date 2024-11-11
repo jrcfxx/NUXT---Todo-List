@@ -76,7 +76,8 @@ const handleLogin = () => {
     })
     .catch(() => {
       alert('Login failed. Please check your credentials.');
-    }).finally(() => {
+    })
+    .finally(() => {
         isLoading.value = false;
     });
 };

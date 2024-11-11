@@ -63,9 +63,7 @@
 
 <script setup>
 import { useTaskStore } from '~/store/taskStore';
-import { today } from '~/utils/dateUtils';
-import { formatDateToYYYYMMDD } from '~/utils/dateUtils';
-import { formatToDatetime } from '~/utils/dateUtils';
+import { formatDateToYYYYMMDD, formatToDatetime, today } from '~/utils/dateUtils';
 
 const taskStore = useTaskStore();
 const route = useRoute();
